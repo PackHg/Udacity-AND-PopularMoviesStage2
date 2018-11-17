@@ -1,0 +1,50 @@
+<resources>
+    <string name="app_name">Popular Movies</string>
+    <string name="movie_details">Details of the movie</string>
+    <string name="settings">Settings</string>
+
+    <!-- Labels -->
+    <string name="user_rating_label">User Rating:&#160;</string>
+    <string name="release_date_label">Release date:&#160;</string>
+
+    <!-- Content descriptions -->
+    <string name="movie_poster">A movie poster</string>
+
+    <!-- Main menu items -->
+    <string name="menu_item_refresh">Refresh</string>
+    <string name="menu_item_settings">Settings</string>
+
+    <!-- Settings -->
+    <string name="pref_sort_by_label">Sort by</string>
+    <string name="pref_sort_by_key" translatable="false">Sort by</string>
+    <string name="pref_sort_by_default">@string/pref_sort_by_most_popular</string>
+    <string name="pref_sort_by_most_popular">Most Popular Movies</string>
+    <string name="pref_sort_by_top_rated">Top Rated Movies</string>
+
+    <string-array name="pref_sort_by_entries">
+        <item>@string/pref_sort_by_most_popular</item>
+        <item>@string/pref_sort_by_top_rated</item>
+    </string-array>
+
+    <string-array name="pref_sort_by_values">
+        <item>@string/pref_sort_by_most_popular</item>
+        <item>@string/pref_sort_by_top_rated</item>
+    </string-array>
+
+    <!-- Warning messages -->
+    <string name="no_internet">No Internet.\n Please check network connectivity.</string>
+    <string name="no_movies_data_found">No movies data found.</string>
+    <string name="issue_with_fetching_data">Oops! There\'s an issue with loading movies data.</string>
+    <string name="no_poster_found">No poster found</string>
+    <string name="unknown">Unknown</string>
+    <string name="no_plot_synopsis_found">No plot synopsis found</string>
+
+    <!-- Example -->
+    <string name="blade_runner_title">Blade Runner: Final Cut</string>
+    <string name="blade_runner_release_date">2007&#8211;10&#8211;01</string>
+    <string name="blade_runner_user_rating">3.7</string>
+    <string name="blade_runner_overview">Ridley Scott\'s definitive Blade Runner: The Final Cut (2007) includes extended scenes and new special effects. Harrison Ford stars in this fascinating, dark vision of the near future as a policeman who tracks engineered humans &#8212; a Blade Runner. In the year 2019, the police department forces Rick Deckard (Ford) out of retirement to hunt four genetically engineered humans who have come to earth. Designed to do difficult, hazardous work, the manufactured humans are stronger, faster and smarter than non engineered humans. They feel no pain or remorse; they are almost indistinguishable from other humans &#8230; and they are killing people. Now Deckard must stop them before they kill again.
+</string>
+
+
+</resources>
