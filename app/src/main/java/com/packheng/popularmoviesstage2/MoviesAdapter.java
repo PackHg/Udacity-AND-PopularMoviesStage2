@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.packheng.popularmoviesstage2.TMDB;
+package com.packheng.popularmoviesstage2;
 
 import android.content.Context;
 import android.content.Intent;
@@ -26,8 +26,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.packheng.popularmoviesstage2.DetailActivity;
-import com.packheng.popularmoviesstage2.R;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;

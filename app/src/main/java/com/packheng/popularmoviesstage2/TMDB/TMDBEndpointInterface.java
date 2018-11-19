@@ -18,19 +18,24 @@ package com.packheng.popularmoviesstage2.TMDB;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
+import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 /**
  * Defines Endpoints for querying movies data
  */
 public interface TMDBEndpointInterface {
-    final String MOST_POPULAR_ENDPOINT = "movie/popular";
-    final String TOP_RATED_ENDPOINT = "movie/top_rated";
     final String API_KEY = "api_key";
 
-    @GET(MOST_POPULAR_ENDPOINT)
-    Call<TMDBResponse> popularMovies(@Query(API_KEY) String api_key);
+    @GET("movie/popular")
+    Call<TMDBMovies> popularMovies(@Query(API_KEY) String api_key);
 
-    @GET(TOP_RATED_ENDPOINT)
-    Call<TMDBResponse> topRatedMovies(@Query(API_KEY) String api_key);
+    @GET("movie/top_rated")
+    Call<TMDBMovies> topRatedMovies(@Query(API_KEY) String api_key);
+
+    @GET("movie/{id}/reviews")
+    Call<TMDBReviews> reviews(@Path("id") int id, @Query(API_KEY) String api_key);
+
+    @GET("movie/{id}/videos")
+    Call<TMDBVideos> videos(@Path("id") int id, @Query(API_KEY) String api_key);
 }

@@ -21,7 +21,7 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
-public class TMDBResult {
+public class TMDBMovie {
 
     @SerializedName("vote_count")
     @Expose

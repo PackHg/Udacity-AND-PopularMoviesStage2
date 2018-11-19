@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Pack Heng
+ * Copyright (c) 2018 $user
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,51 +21,28 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
-public class TMDBResponse {
+public class TMDBVideos {
 
-    @SerializedName("page")
+    @SerializedName("id")
     @Expose
-    private int page;
-    @SerializedName("total_results")
-    @Expose
-    private int totalResults;
-    @SerializedName("total_pages")
-    @Expose
-    private int totalPages;
+    private int id;
     @SerializedName("results")
     @Expose
-    private List<TMDBResult> results = null;
+    private List<TMDBVideo> results = null;
 
-    public int getPage() {
-        return page;
+    public int getId() {
+        return id;
     }
 
-    public void setPage(int page) {
-        this.page = page;
+    public void setId(int id) {
+        this.id = id;
     }
 
-    public int getTotalResults() {
-        return totalResults;
-    }
-
-    public void setTotalResults(int totalResults) {
-        this.totalResults = totalResults;
-    }
-
-    public int getTotalPages() {
-        return totalPages;
-    }
-
-    public void setTotalPages(int totalPages) {
-        this.totalPages = totalPages;
-    }
-
-    public List<TMDBResult> getResults() {
+    public List<TMDBVideo> getResults() {
         return results;
     }
 
-    public void setResults(List<TMDBResult> results) {
+    public void setResults(List<TMDBVideo> results) {
         this.results = results;
     }
-
 }

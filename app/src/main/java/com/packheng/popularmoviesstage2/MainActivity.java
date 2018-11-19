@@ -32,11 +32,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
-import com.packheng.popularmoviesstage2.TMDB.Movie;
-import com.packheng.popularmoviesstage2.TMDB.MoviesAdapter;
 import com.packheng.popularmoviesstage2.TMDB.TMDBEndpointInterface;
-import com.packheng.popularmoviesstage2.TMDB.TMDBResponse;
-import com.packheng.popularmoviesstage2.TMDB.TMDBResult;
+import com.packheng.popularmoviesstage2.TMDB.TMDBMovies;
+import com.packheng.popularmoviesstage2.TMDB.TMDBMovie;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -128,7 +126,7 @@ public class MainActivity extends AppCompatActivity
             emptyTextView.setVisibility(View.GONE);
 
             // Accessing the API
-            Call<TMDBResponse> call;
+            Call<TMDBMovies> call;
             if (sortBy.equals(getString(R.string.pref_sort_by_top_rated))) {
                 setActionBarTitle(getString(R.string.pref_sort_by_top_rated));
                 call = apiService.topRatedMovies(API_KEY_VALUE);
@@ -137,18 +135,18 @@ public class MainActivity extends AppCompatActivity
                 call = apiService.popularMovies(API_KEY_VALUE);
             }
 
-            call.enqueue(new Callback<TMDBResponse>() {
+            call.enqueue(new Callback<TMDBMovies>() {
 
                 @Override
-                public void onResponse(Call<TMDBResponse> call, Response<TMDBResponse> response) {
+                public void onResponse(Call<TMDBMovies> call, Response<TMDBMovies> response) {
                     swipeRefreshLayout.setRefreshing(false);
                     emptyTextView.setVisibility(View.GONE);
                     moviesRecyclerView.setVisibility(View.VISIBLE);
 
                     if (response.body() != null) {
-                        List<TMDBResult> results = response.body().getResults();
+                        List<TMDBMovie> results = response.body().getResults();
                         movies.clear();
-                        for (TMDBResult result: results) {
+                        for (TMDBMovie result: results) {
                             Movie movie = new Movie();
                             if (result != null) {
                                 movie.setTitle(result.getOriginalTitle());
@@ -173,7 +171,7 @@ public class MainActivity extends AppCompatActivity
                 }
 
                 @Override
-                public void onFailure(Call<TMDBResponse> call, Throwable t) {
+                public void onFailure(Call<TMDBMovies> call, Throwable t) {
                     swipeRefreshLayout.setRefreshing(false);
                     moviesRecyclerView.setVisibility(View.GONE);
                     emptyTextView.setVisibility(View.VISIBLE);
