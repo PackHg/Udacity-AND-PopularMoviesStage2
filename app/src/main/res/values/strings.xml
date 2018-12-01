@@ -1,7 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2018 Pack Heng
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~    http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
 <resources>
     <string name="app_name">Popular Movies</string>
-    <string name="movie_details">Details of the movie</string>
     <string name="settings">Settings</string>
+    <!--TODO: is movie_details used? -->
+    <string name="movie_details">Movie details</string>
 
     <!-- Labels -->
     <string name="user_rating_label">User Rating:&#160;</string>
@@ -45,6 +63,4 @@
     <string name="blade_runner_user_rating">3.7</string>
     <string name="blade_runner_overview">Ridley Scott\'s definitive Blade Runner: The Final Cut (2007) includes extended scenes and new special effects. Harrison Ford stars in this fascinating, dark vision of the near future as a policeman who tracks engineered humans &#8212; a Blade Runner. In the year 2019, the police department forces Rick Deckard (Ford) out of retirement to hunt four genetically engineered humans who have come to earth. Designed to do difficult, hazardous work, the manufactured humans are stronger, faster and smarter than non engineered humans. They feel no pain or remorse; they are almost indistinguishable from other humans &#8230; and they are killing people. Now Deckard must stop them before they kill again.
 </string>
-
-
 </resources>

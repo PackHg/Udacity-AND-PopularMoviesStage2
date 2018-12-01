@@ -16,33 +16,36 @@
   -->
 
 <!-- Layout for a single movie item in a grid view -->
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_margin="@dimen/default_margin">
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <ImageView
-        android:id="@+id/movie_item_iv"
-        android:layout_width="@dimen/main_movie_poster_width"
-        android:layout_height="@dimen/main_movie_poster_height"
-        android:contentDescription="@string/movie_poster"
-        android:scaleType="centerCrop"
-        tools:src="@mipmap/ic_launcher" />
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/default_margin">
 
-    <TextView
-        android:id="@+id/movie_item_empty_view"
-        android:layout_width="@dimen/main_movie_poster_width"
-        android:layout_height="@dimen/main_movie_poster_height"
-        android:background="@drawable/orange_rectangle"
-        android:gravity="center"
-        android:textAppearance="?android:textAppearanceSmall"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="Movie title"/>
+        <ImageView
+            android:id="@+id/movie_item_image_view"
+            android:layout_width="@dimen/main_movie_poster_width"
+            android:layout_height="@dimen/main_movie_poster_height"
+            android:contentDescription="@string/movie_poster"
+            android:scaleType="centerCrop"
+            tools:src="@mipmap/ic_launcher" />
 
-</android.support.constraint.ConstraintLayout>
+        <TextView
+            android:id="@+id/movie_item_empty_text_view"
+            android:layout_width="@dimen/main_movie_poster_width"
+            android:layout_height="@dimen/main_movie_poster_height"
+            android:background="@drawable/orange_rectangle"
+            android:gravity="center"
+            android:textAppearance="?android:textAppearanceSmall"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Movie title" />
+
+    </android.support.constraint.ConstraintLayout>
+</layout>

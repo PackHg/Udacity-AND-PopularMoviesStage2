@@ -16,75 +16,103 @@
 
 package com.packheng.popularmoviesstage2;
 
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
 
+import com.packheng.popularmoviesstage2.databinding.ActivityDetailBinding;
+import com.packheng.popularmoviesstage2.db.AppDatabase;
+import com.packheng.popularmoviesstage2.db.MovieEntry;
 import com.squareup.picasso.Picasso;
 
 import java.util.Date;
 import java.util.Locale;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-
 import static com.packheng.popularmoviesstage2.utils.DateToStringUtils.formatDateToString;
-import static com.packheng.popularmoviesstage2.utils.DateToStringUtils.stringToDate;
 
 /**
  * Shows the details of a movie.
  */
 public class DetailActivity extends AppCompatActivity {
+    private static final String LOG_TAG = DetailActivity.class.getSimpleName();
 
-    @BindView(R.id.detail_activity_poster_iv) ImageView posterImageView;
-    @BindView(R.id.detail_activity_poster_empty_tv) TextView emptyPosterTextView;
-    @BindView(R.id.detail_activity_title_tv) TextView titleTextView;
-    @BindView(R.id.detail_activity_user_rating_tv) TextView userRatingTextView;
-    @BindView(R.id.detail_activity_release_date_tv) TextView releaseDatetextView;
-    @BindView(R.id.detail_activity_plot_synopsis_tv) TextView overviewTextView;
+    // Extra for the task ID to be received in the intent
+    public static final String EXTRA_MOVIE_ID = "extra movie id";
+    // Extra for the task ID to be received after rotation
+    public static final String INSTANCE_MOVIE_ID = "instance movie id";
+    public static final int DEFAULT_MOVIE_ID = -1;
+
+    private int mMovieId = DEFAULT_MOVIE_ID;
+
+    private AppDatabase mDb;
+
+    ActivityDetailBinding mDetailBinding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_detail);
-        ButterKnife.bind(this);
+        mDetailBinding = DataBindingUtil.setContentView(this, R.layout.activity_detail);
 
-        final int DEFAULT_POSITION = 0;
+        mDb = AppDatabase.getsIntance(getApplicationContext());
+
+        if (savedInstanceState != null && savedInstanceState.containsKey(INSTANCE_MOVIE_ID)) {
+            mMovieId = savedInstanceState.getInt(INSTANCE_MOVIE_ID, DEFAULT_MOVIE_ID);
+        }
 
         Intent intent = getIntent();
-        int position = intent.getIntExtra(MoviesAdapter.MOVIE_POSITION_KEY, DEFAULT_POSITION);
+        if (intent != null && intent.hasExtra(EXTRA_MOVIE_ID)) {
+            mMovieId = intent.getIntExtra(EXTRA_MOVIE_ID, mMovieId);
+        }
 
-        Movie movie = MainActivity.movies.get(position);
+        // Setup a DetailViewModel
+        DetailViewModelFactory factory = new DetailViewModelFactory(mDb, mMovieId);
+        final DetailViewModel detailViewModel = ViewModelProviders.of(this, factory)
+                .get(DetailViewModel.class);
+        detailViewModel.getMovie().observe(this, movieEntry -> {
+            if (movieEntry != null) {
+                bindMovieToUI(movieEntry);
+            }
+        });
+    }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putInt(INSTANCE_MOVIE_ID, mMovieId);
+        super.onSaveInstanceState(outState);
+    }
+
+    private void bindMovieToUI(MovieEntry movie) {
+
+        // Movie poster
         String posterUrl = movie.getPosterUrl();
         if (!posterUrl.isEmpty()) {
-            emptyPosterTextView.setVisibility(View.GONE);
-            Picasso.with(this).load(movie.getPosterUrl()).into(posterImageView);
+            mDetailBinding.detailPosterEmptyTextView.setVisibility(View.GONE);
+            Picasso.with(this).load(movie.getPosterUrl()).into(mDetailBinding.detailPosterImageView);
         } else {
-            emptyPosterTextView.setVisibility(View.VISIBLE);
+            mDetailBinding.detailPosterEmptyTextView.setVisibility(View.VISIBLE);
         }
 
-        titleTextView.setText(movie.getTitle());
-        userRatingTextView.setText(String.format(Locale.getDefault(), "%1.1f", movie.getUserRating()));
+        // Movie title
+        mDetailBinding.detailTitleTextView.setText(movie.getTitle());
+        mDetailBinding.detailUserRatingTextView.setText(String.format(Locale.getDefault(), "%1.1f", movie.getUserRating()));
 
-        String releaseDate = movie.getReleaseDate();
-        if (!releaseDate.isEmpty()) {
-            Date date = stringToDate(releaseDate);
-            releaseDate = formatDateToString(date);
-            releaseDatetextView.setText(releaseDate);
+        // Movie release date
+        Date releaseDate = movie.getReleaseDate();
+        if (releaseDate != null) {
+            mDetailBinding.detailReleaseDateTextView.setText(formatDateToString(releaseDate));
         } else {
-            releaseDatetextView.setText(getString(R.string.unknown));
+            mDetailBinding.detailTitleTextView.setText(getString(R.string.unknown));
         }
 
+        // Movie plot synopsis
         String overview = movie.getPlotSynopsis();
         if (!overview.isEmpty()) {
-            overviewTextView.setText(movie.getPlotSynopsis());
+            mDetailBinding.detailPlotSynopsisTextView.setText(movie.getPlotSynopsis());
         } else {
-            overviewTextView.setText(getString(R.string.no_plot_synopsis_found));
+            mDetailBinding.detailPlotSynopsisTextView.setText(getString(R.string.no_plot_synopsis_found));
         }
-
     }
 }

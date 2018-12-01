@@ -16,78 +16,83 @@
 
 package com.packheng.popularmoviesstage2;
 
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
 
 import com.packheng.popularmoviesstage2.TMDB.TMDBEndpointInterface;
-import com.packheng.popularmoviesstage2.TMDB.TMDBMovies;
 import com.packheng.popularmoviesstage2.TMDB.TMDBMovie;
+import com.packheng.popularmoviesstage2.TMDB.TMDBMovies;
+import com.packheng.popularmoviesstage2.databinding.ActivityMainBinding;
+import com.packheng.popularmoviesstage2.db.AppDatabase;
+import com.packheng.popularmoviesstage2.db.MovieEntry;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import static com.packheng.popularmoviesstage2.utils.DateToStringUtils.stringToDate;
 import static com.packheng.popularmoviesstage2.utils.NetworkUtils.isNetworkConnected;
 
 public class MainActivity extends AppCompatActivity
-        implements SharedPreferences.OnSharedPreferenceChangeListener  {
+        implements SharedPreferences.OnSharedPreferenceChangeListener {
+    private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
     private static final String TMDB_BASE_URL = "https://api.themoviedb.org/3/";
 
-    static ArrayList<Movie> movies;
-    private String sortBy;
-    private MoviesAdapter moviesAdapter;
+    static ArrayList<MovieEntry> mMovies;
+    private String mSortBy;
+    private MovieAdapter mMovieAdapter;
 
-    @BindView(R.id.movies_rv) RecyclerView moviesRecyclerView;
-    @BindView(R.id.empty_tv) TextView emptyTextView;
-    @BindView(R.id.swipe_refrsh) SwipeRefreshLayout swipeRefreshLayout;
+    // For binding with the components of the layout
+    ActivityMainBinding mMainBinding;
 
-    private TMDBEndpointInterface apiService;
+    private TMDBEndpointInterface mApiService;
+
+    private AppDatabase mDb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        ButterKnife.bind(this);
+        mMainBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
 
         // Set number of columns in the RecyclerView.
         int numberOfColumns = calculateBestSpanCount((int) getResources()
                 .getDimension(R.dimen.main_movie_poster_width));
 
-        movies = new ArrayList<>();
+        mMovies = new ArrayList<MovieEntry>();
 
-        moviesRecyclerView.setVisibility(View.VISIBLE);
-        emptyTextView.setVisibility(View.GONE);
+        mMainBinding.mainRecyclerView.setVisibility(View.VISIBLE);
+        mMainBinding.mainEmptyTextView.setVisibility(View.GONE);
 
         // Set up the RecyclerView.
-        moviesRecyclerView.setHasFixedSize(true);
-        moviesAdapter = new MoviesAdapter(this, movies);
-        moviesRecyclerView.setAdapter(moviesAdapter);
-        moviesRecyclerView.setLayoutManager(new GridLayoutManager(this, numberOfColumns));
+        mMainBinding.mainRecyclerView.setHasFixedSize(true);
+        mMovieAdapter = new MovieAdapter(this, mMovies);
+        mMainBinding.mainRecyclerView.setAdapter(mMovieAdapter);
+        mMainBinding.mainRecyclerView.setLayoutManager(new GridLayoutManager(this, numberOfColumns));
 
-        swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary, R.color.green, R.color.yellow);
-        // Set up a setOnRefreshListener to  when user performs a swipe-to-refresh gesture.
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+        mMainBinding.mainSwipeRefresh.setColorSchemeResources(R.color.colorPrimary, R.color.green, R.color.yellow);
+        // Set up a setOnRefreshListener to load the movies when user performs a swipe-to-refresh gesture.
+        mMainBinding.mainSwipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 loadMoviesData();
@@ -99,13 +104,25 @@ public class MainActivity extends AppCompatActivity
                 .baseUrl(TMDB_BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
-        apiService = retrofit.create(TMDBEndpointInterface.class);
+        mApiService = retrofit.create(TMDBEndpointInterface.class);
 
         // Get the sort by type from SharedPreferences and register the listener
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-        sortBy = sp.getString(getString(R.string.pref_sort_by_key),
+        mSortBy = sp.getString(getString(R.string.pref_sort_by_key),
                 getString(R.string.pref_sort_by_most_popular));
         sp.registerOnSharedPreferenceChangeListener(this);
+
+        mDb = AppDatabase.getsIntance(getApplicationContext());
+
+        // Setup a MainViewModel
+        MainViewModelFactory factory = new MainViewModelFactory(mDb);
+        final MainViewModel mainViewModel = ViewModelProviders.of(this, factory)
+                .get(MainViewModel.class);
+        mainViewModel.getMovies().observe(this, movieEntries -> {
+            if (movieEntries != null) {
+                mMovieAdapter.setMovies(movieEntries);
+            }
+        });
 
         loadMoviesData();
     }
@@ -119,70 +136,84 @@ public class MainActivity extends AppCompatActivity
         final String IMAGE_SIZE = "/w185";
         final String EMPTY_STRING = "";
 
-        swipeRefreshLayout.setRefreshing(true);
+        mMainBinding.mainSwipeRefresh.setRefreshing(true);
 
         if (isNetworkConnected(this)) {
-            moviesRecyclerView.setVisibility(View.GONE);
-            emptyTextView.setVisibility(View.GONE);
+            mMainBinding.mainRecyclerView.setVisibility(View.GONE);
+            mMainBinding.mainEmptyTextView.setVisibility(View.GONE);
 
             // Accessing the API
+            Log.d(LOG_TAG, "loadMoviesData() - Starts loading movies from API.");
+
             Call<TMDBMovies> call;
-            if (sortBy.equals(getString(R.string.pref_sort_by_top_rated))) {
+            if (mSortBy.equals(getString(R.string.pref_sort_by_top_rated))) {
                 setActionBarTitle(getString(R.string.pref_sort_by_top_rated));
-                call = apiService.topRatedMovies(API_KEY_VALUE);
+                call = mApiService.topRatedMovies(API_KEY_VALUE);
             } else {
                 setActionBarTitle(getString(R.string.pref_sort_by_most_popular));
-                call = apiService.popularMovies(API_KEY_VALUE);
+                call = mApiService.popularMovies(API_KEY_VALUE);
             }
 
             call.enqueue(new Callback<TMDBMovies>() {
-
                 @Override
                 public void onResponse(Call<TMDBMovies> call, Response<TMDBMovies> response) {
-                    swipeRefreshLayout.setRefreshing(false);
-                    emptyTextView.setVisibility(View.GONE);
-                    moviesRecyclerView.setVisibility(View.VISIBLE);
+                    mMainBinding.mainSwipeRefresh.setRefreshing(false);
+                    mMainBinding.mainEmptyTextView.setVisibility(View.GONE);
+                    mMainBinding.mainRecyclerView.setVisibility(View.VISIBLE);
 
                     if (response.body() != null) {
-                        List<TMDBMovie> results = response.body().getResults();
-                        movies.clear();
-                        for (TMDBMovie result: results) {
-                            Movie movie = new Movie();
-                            if (result != null) {
-                                movie.setTitle(result.getOriginalTitle());
-                                if (!result.getPosterPath().isEmpty()) {
-                                    movie.setPosterUrl(BASE_URL + IMAGE_SIZE + result.getPosterPath());
-                                } else {
-                                    movie.setPosterUrl(EMPTY_STRING);
-                                }
-                                movie.setPlotSynopsis(result.getOverview());
-                                movie.setUserRating(result.getVoteAverage());
-                                movie.setReleaseDate(result.getReleaseDate());
-                            }
-                            movies.add(movie);
-                        }
-                        moviesAdapter.notifyDataSetChanged();
-                    } else {
-                        moviesRecyclerView.setVisibility(View.GONE);
-                        emptyTextView.setVisibility(View.VISIBLE);
-                        emptyTextView.setText(R.string.no_movies_data_found);
-                    }
+                        AppExecutors.getInstance().diskIO().execute(new Runnable() {
 
+                            @Override
+                            public void run() {
+                                List<TMDBMovie> results = response.body().getResults();
+                                mMovies.clear();
+                                for (TMDBMovie result: results) {
+                                    if (result != null) {
+                                        int movieId = result.getId();
+                                        String title = result.getOriginalTitle();
+                                        Log.d(LOG_TAG, "loadMoviesData() - movie title : " + title + ".");
+                                        String posterUrl;
+                                        if (!result.getPosterPath().isEmpty()) {
+                                            posterUrl = BASE_URL + IMAGE_SIZE + result.getPosterPath();
+                                        } else {
+                                            posterUrl = EMPTY_STRING;
+                                        }
+                                        String plotSynopsis = result.getOverview();
+                                        double userRating = result.getVoteAverage();
+                                        Date releaseDate = stringToDate(result.getReleaseDate());
+                                        MovieEntry movie = new MovieEntry(movieId, title, posterUrl, plotSynopsis,
+                                                userRating, releaseDate, false);
+                                        mMovies.add(movie);
+                                    }
+                                }
+
+                                mDb.movieDao().deleteAll();
+                                Log.d(LOG_TAG, "loadMoviesData() - deleted all movies in database.");
+                                mDb.movieDao().insertAll(mMovies);
+                                Log.d(LOG_TAG, "loadMoviesData() - inserted downloaded movies in movie database.");
+                            }
+                        });
+                    } else {
+                        mMainBinding.mainRecyclerView.setVisibility(View.GONE);
+                        mMainBinding.mainEmptyTextView.setVisibility(View.VISIBLE);
+                        mMainBinding.mainEmptyTextView.setText(R.string.no_movies_data_found);
+                    }
                 }
 
                 @Override
                 public void onFailure(Call<TMDBMovies> call, Throwable t) {
-                    swipeRefreshLayout.setRefreshing(false);
-                    moviesRecyclerView.setVisibility(View.GONE);
-                    emptyTextView.setVisibility(View.VISIBLE);
-                    emptyTextView.setText(R.string.issue_with_fetching_data);
+                    mMainBinding.mainSwipeRefresh.setRefreshing(false);
+                    mMainBinding.mainRecyclerView.setVisibility(View.GONE);
+                    mMainBinding.mainEmptyTextView.setVisibility(View.VISIBLE);
+                    mMainBinding.mainEmptyTextView.setText(R.string.issue_with_fetching_data);
                 }
             });
         } else {
-            swipeRefreshLayout.setRefreshing(false);
-            moviesRecyclerView.setVisibility(View.GONE);
-            emptyTextView.setVisibility(View.VISIBLE);
-            emptyTextView.setText(R.string.no_internet);
+            mMainBinding.mainSwipeRefresh.setRefreshing(false);
+            mMainBinding.mainRecyclerView.setVisibility(View.GONE);
+            mMainBinding.mainEmptyTextView.setVisibility(View.VISIBLE);
+            mMainBinding.mainEmptyTextView.setText(R.string.no_internet);
         }
     }
 
@@ -210,13 +241,13 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    // Reloads the movies if the shared preference (sort by) changes
+    // Reloads the mMovies if the shared preference (sort by) changes
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (key.equals(getString(R.string.pref_sort_by_key))) {
-            String sortByPref = sharedPreferences.getString(key, sortBy);
-            if (!sortBy.equals(sortByPref)) {
-                sortBy = sortByPref;
+            String sortByPref = sharedPreferences.getString(key, mSortBy);
+            if (!mSortBy.equals(sortByPref)) {
+                mSortBy = sortByPref;
                 loadMoviesData();
             }
         }
