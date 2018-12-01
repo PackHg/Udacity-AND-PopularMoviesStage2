@@ -42,13 +42,19 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
 
     private final Context mContext;
     private List<MovieEntry> mMovies;
+    final private ItemClickListener mItemClickListener;
 
-    public MovieAdapter(Context context, List<MovieEntry> movies) {
-        mContext = context;
-        mMovies = movies;
+    public interface ItemClickListener {
+        void onItemClickListener(int movieId);
     }
 
-    class MovieViewHolder extends RecyclerView.ViewHolder {
+    public MovieAdapter(Context context, List<MovieEntry> movies, ItemClickListener listener) {
+        mContext = context;
+        mMovies = movies;
+        mItemClickListener = listener;
+    }
+
+    class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         MovieItemBinding binding;
 
@@ -56,20 +62,16 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
             super(itemView);
 
             binding = DataBindingUtil.bind(itemView);
-
             if (binding == null) {
                 Log.e(LOG_TAG, "Can't data bind to the itemView");
             }
+            binding.movieItemImageView.setOnClickListener(this);
+        }
 
-            binding.movieItemImageView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    int movieDd = mMovies.get(getAdapterPosition()).getId();
-                    Intent intent = new Intent(mContext, DetailActivity.class);
-                    intent.putExtra(EXTRA_MOVIE_ID, movieDd);
-                    mContext.startActivity(intent);
-                }
-            });
+        @Override
+        public void onClick(View v) {
+            int movieId = mMovies.get(getAdapterPosition()).getId();
+            mItemClickListener.onItemClickListener(movieId);
         }
     }
 

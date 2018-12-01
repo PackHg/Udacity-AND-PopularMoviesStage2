@@ -35,9 +35,6 @@ public interface MovieDao {
     @Query("SELECT * FROM movies")
     LiveData<List<MovieEntry>> loadAll();
 
-//    @Query("SELECT * FROM movies ORDER BY popularity")
-//    LiveData<List<MovieEntry>> loadAllByPopularity();
-
     @Query("SELECT * FROM movies ORDER BY userRating")
     LiveData<List<MovieEntry>> loadAllByUserRating();
 

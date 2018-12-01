@@ -27,5 +27,4 @@
     <!-- Width and height of the movie poster in the details view -->
     <dimen name="detail_movie_poster_width">185dp</dimen>
     <dimen name="detail_movie_poster_height">278dp</dimen>
-
 </resources>

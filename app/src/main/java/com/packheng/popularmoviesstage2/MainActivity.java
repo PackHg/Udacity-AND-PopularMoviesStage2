@@ -20,12 +20,14 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
@@ -54,7 +56,7 @@ import static com.packheng.popularmoviesstage2.utils.DateToStringUtils.stringToD
 import static com.packheng.popularmoviesstage2.utils.NetworkUtils.isNetworkConnected;
 
 public class MainActivity extends AppCompatActivity
-        implements SharedPreferences.OnSharedPreferenceChangeListener {
+        implements SharedPreferences.OnSharedPreferenceChangeListener, MovieAdapter.ItemClickListener {
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
     private static final String TMDB_BASE_URL = "https://api.themoviedb.org/3/";
@@ -86,7 +88,7 @@ public class MainActivity extends AppCompatActivity
 
         // Set up the RecyclerView.
         mMainBinding.mainRecyclerView.setHasFixedSize(true);
-        mMovieAdapter = new MovieAdapter(this, mMovies);
+        mMovieAdapter = new MovieAdapter(this, mMovies, this);
         mMainBinding.mainRecyclerView.setAdapter(mMovieAdapter);
         mMainBinding.mainRecyclerView.setLayoutManager(new GridLayoutManager(this, numberOfColumns));
 
@@ -286,5 +288,13 @@ public class MainActivity extends AppCompatActivity
         if (actionBar != null) {
             actionBar.setTitle(title);
         }
+    }
+
+    @Override
+    public void onItemClickListener(int movieId) {
+        // Launch DetailActivity with the movieId as an extra in the intent
+        Intent intent = new Intent(MainActivity.this, DetailActivity.class);
+        intent.putExtra(DetailActivity.EXTRA_MOVIE_ID, movieId);
+        startActivity(intent);
     }
 }
