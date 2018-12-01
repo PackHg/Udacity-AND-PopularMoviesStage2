@@ -16,5 +16,61 @@
 
 package com.packheng.popularmoviesstage2.db;
 
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Ignore;
+import android.arch.persistence.room.PrimaryKey;
+
+import java.util.Date;
+
+@Entity(tableName = "reviews")
 public class ReviewEntry {
+
+    @PrimaryKey(autoGenerate = true)
+    private int id;
+    private int reviewId;
+    private int movieId;
+    private String author;
+    private String content;
+    private String url;
+
+    @Ignore
+    public ReviewEntry(int reviewId, int movieId, String author, String content, String url) {
+        this.reviewId = reviewId;
+        this.movieId = movieId;
+        this.author = author;
+        this.content = content;
+        this.url = url;
+    }
+
+    public ReviewEntry(int id, int reviewId, int movieId, String author, String content, String url) {
+        this.id = id;
+        this.reviewId = reviewId;
+        this.movieId = movieId;
+        this.author = author;
+        this.content = content;
+        this.url = url;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public int getReviewId() {
+        return reviewId;
+    }
+    public int getMovieId() {
+        return movieId;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public String getUrl() {
+        return url;
+    }
 }

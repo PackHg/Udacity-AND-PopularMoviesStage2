@@ -58,6 +58,10 @@ public class MainActivity extends AppCompatActivity
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
     private static final String TMDB_BASE_URL = "https://api.themoviedb.org/3/";
+    private static final String API_KEY_VALUE = BuildConfig.ApiKey;
+    private static final String BASE_URL = "https://image.tmdb.org/t/p";
+    private static final String IMAGE_SIZE = "/w185";
+    private static final String EMPTY_STRING = "";
 
     static ArrayList<MovieEntry> mMovies;
     private String mSortBy;
@@ -111,7 +115,7 @@ public class MainActivity extends AppCompatActivity
         mMainBinding.mainSwipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                downloadMoviesData();
+                downloadData();
             }
         });
 
@@ -135,98 +139,98 @@ public class MainActivity extends AppCompatActivity
         });
 
         if (!mIsDownloaded) {
-            downloadMoviesData();
+            downloadData();
         }
     }
 
     /**
      * Downloads the movies data from the TMDB API into the database.
      */
-    private void downloadMoviesData() {
-        final String API_KEY_VALUE = BuildConfig.ApiKey;
-        final String BASE_URL = "https://image.tmdb.org/t/p";
-        final String IMAGE_SIZE = "/w185";
-        final String EMPTY_STRING = "";
+    private void downloadData() {
 
         mMainBinding.mainSwipeRefresh.setRefreshing(true);
+        mMainBinding.mainRecyclerView.setVisibility(View.VISIBLE);
 
         if (isNetworkConnected(this)) {
-//            mMainBinding.mainRecyclerView.setVisibility(View.GONE);
             mMainBinding.mainEmptyTextView.setVisibility(View.GONE);
 
-            // Accessing the API
-            Log.d(LOG_TAG, "downloadMoviesData() - Starts loading movies from API.");
+            downloadMovies();
 
-            Call<TMDBMovies> call;
-            if (mSortBy.equals(getString(R.string.pref_sort_by_top_rated))) {
-                setActionBarTitle(getString(R.string.pref_sort_by_top_rated));
-                call = mApiService.topRatedMovies(API_KEY_VALUE);
-            } else {
-                setActionBarTitle(getString(R.string.pref_sort_by_most_popular));
-                call = mApiService.popularMovies(API_KEY_VALUE);
-            }
-
-            call.enqueue(new Callback<TMDBMovies>() {
-                @Override
-                public void onResponse(Call<TMDBMovies> call, Response<TMDBMovies> response) {
-                    mMainBinding.mainSwipeRefresh.setRefreshing(false);
-                    mMainBinding.mainRecyclerView.setVisibility(View.VISIBLE);
-
-                    if (response.body() != null) {
-                        AppExecutors.getInstance().diskIO().execute(new Runnable() {
-
-                            @Override
-                            public void run() {
-                                List<TMDBMovie> results = response.body().getResults();
-                                mMovies.clear();
-                                for (TMDBMovie result: results) {
-                                    if (result != null) {
-                                        int movieId = result.getId();
-                                        String title = result.getOriginalTitle();
-                                        Log.d(LOG_TAG, "downloadMoviesData() - movie title : " + title + ".");
-                                        String posterUrl;
-                                        if (!result.getPosterPath().isEmpty()) {
-                                            posterUrl = BASE_URL + IMAGE_SIZE + result.getPosterPath();
-                                        } else {
-                                            posterUrl = EMPTY_STRING;
-                                        }
-                                        String plotSynopsis = result.getOverview();
-                                        double userRating = result.getVoteAverage();
-                                        Date releaseDate = stringToDate(result.getReleaseDate());
-                                        MovieEntry movie = new MovieEntry(movieId, title, posterUrl, plotSynopsis,
-                                                userRating, releaseDate, false);
-                                        mMovies.add(movie);
-                                    }
-                                }
-
-                                mDb.movieDao().deleteAll();
-                                Log.d(LOG_TAG, "downloadMoviesData() - deleted all movies in database.");
-                                mDb.movieDao().insertAll(mMovies);
-                                Log.d(LOG_TAG, "downloadMoviesData() - inserted downloaded movies in movie database.");
-                                mIsDownloaded = true;
-                            }
-                        });
-                    } else {
-                        mMainBinding.mainRecyclerView.setVisibility(View.GONE);
-                        mMainBinding.mainEmptyTextView.setVisibility(View.VISIBLE);
-                        mMainBinding.mainEmptyTextView.setText(R.string.no_movies_data_found);
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<TMDBMovies> call, Throwable t) {
-                    mMainBinding.mainSwipeRefresh.setRefreshing(false);
-                    mMainBinding.mainRecyclerView.setVisibility(View.GONE);
-                    mMainBinding.mainEmptyTextView.setVisibility(View.VISIBLE);
-                    mMainBinding.mainEmptyTextView.setText(R.string.issue_with_fetching_data);
-                }
-            });
         } else {
             mMainBinding.mainSwipeRefresh.setRefreshing(false);
             mMainBinding.mainRecyclerView.setVisibility(View.GONE);
             mMainBinding.mainEmptyTextView.setVisibility(View.VISIBLE);
             mMainBinding.mainEmptyTextView.setText(R.string.no_internet);
         }
+    }
+
+    private void downloadMovies() {
+        // Accessing the API
+        Log.d(LOG_TAG, "downloadMovies() - Starts loading movies from API.");
+
+        Call<TMDBMovies> call;
+        if (mSortBy.equals(getString(R.string.pref_sort_by_top_rated))) {
+            setActionBarTitle(getString(R.string.pref_sort_by_top_rated));
+            call = mApiService.topRatedMovies(API_KEY_VALUE);
+        } else {
+            setActionBarTitle(getString(R.string.pref_sort_by_most_popular));
+            call = mApiService.popularMovies(API_KEY_VALUE);
+        }
+
+        call.enqueue(new Callback<TMDBMovies>() {
+            @Override
+            public void onResponse(Call<TMDBMovies> call, Response<TMDBMovies> response) {
+                mMainBinding.mainSwipeRefresh.setRefreshing(false);
+
+                if (response.body() != null) {
+                    AppExecutors.getInstance().diskIO().execute(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            List<TMDBMovie> results = response.body().getResults();
+                            mMovies.clear();
+                            for (TMDBMovie result: results) {
+                                if (result != null) {
+                                    int movieId = result.getId();
+                                    String title = result.getOriginalTitle();
+                                    Log.d(LOG_TAG, "downloadData() - movie title : " + title + ".");
+                                    String posterUrl;
+                                    if (!result.getPosterPath().isEmpty()) {
+                                        posterUrl = BASE_URL + IMAGE_SIZE + result.getPosterPath();
+                                    } else {
+                                        posterUrl = EMPTY_STRING;
+                                    }
+                                    String plotSynopsis = result.getOverview();
+                                    double userRating = result.getVoteAverage();
+                                    Date releaseDate = stringToDate(result.getReleaseDate());
+                                    MovieEntry movie = new MovieEntry(movieId, title, posterUrl, plotSynopsis,
+                                            userRating, releaseDate, false);
+                                    mMovies.add(movie);
+                                }
+                            }
+
+                            mDb.movieDao().deleteAll();
+                            Log.d(LOG_TAG, "downloadMovies() - deleted all movies in database.");
+                            mDb.movieDao().insertAll(mMovies);
+                            Log.d(LOG_TAG, "downloadMovies() - inserted downloaded movies in movie database.");
+                            mIsDownloaded = true;
+                        }
+                    });
+                } else {
+                    mMainBinding.mainRecyclerView.setVisibility(View.GONE);
+                    mMainBinding.mainEmptyTextView.setVisibility(View.VISIBLE);
+                    mMainBinding.mainEmptyTextView.setText(R.string.no_movies_data_found);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<TMDBMovies> call, Throwable t) {
+                mMainBinding.mainSwipeRefresh.setRefreshing(false);
+                mMainBinding.mainRecyclerView.setVisibility(View.GONE);
+                mMainBinding.mainEmptyTextView.setVisibility(View.VISIBLE);
+                mMainBinding.mainEmptyTextView.setText(R.string.issue_with_fetching_data);
+            }
+        });
     }
 
     @Override
@@ -241,7 +245,7 @@ public class MainActivity extends AppCompatActivity
 
         switch (id) {
             case R.id.menu_item_refresh:
-                downloadMoviesData();
+                downloadData();
                 return true;
 
             case R.id.menu_item_settings:
@@ -260,7 +264,7 @@ public class MainActivity extends AppCompatActivity
             String sortByPref = sharedPreferences.getString(key, mSortBy);
             if (!mSortBy.equals(sortByPref)) {
                 mSortBy = sortByPref;
-                downloadMoviesData();
+                downloadData();
             }
         }
     }
@@ -268,7 +272,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onStop() {
         super.onStop();
-
         SharedPreferences sp = getSharedPreferences(USER_DATA, 0);
         SharedPreferences.Editor editor = sp.edit();
         editor.putBoolean(KEY_IS_DOWNLOADED, mIsDownloaded);
@@ -278,7 +281,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
         PreferenceManager.getDefaultSharedPreferences(this)
                 .unregisterOnSharedPreferenceChangeListener(this);
     }

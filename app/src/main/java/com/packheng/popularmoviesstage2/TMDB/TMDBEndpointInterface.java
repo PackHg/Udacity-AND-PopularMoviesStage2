@@ -33,9 +33,9 @@ public interface TMDBEndpointInterface {
     @GET("movie/top_rated")
     Call<TMDBMovies> topRatedMovies(@Query(API_KEY) String api_key);
 
-    @GET("movie/{id}/reviews")
-    Call<TMDBReviews> reviews(@Path("id") int id, @Query(API_KEY) String api_key);
+    @GET("movie/{movieId}/reviews")
+    Call<TMDBReviews> reviews(@Path("movieId") int movieId, @Query(API_KEY) String api_key);
 
-    @GET("movie/{id}/videos")
-    Call<TMDBVideos> videos(@Path("id") int id, @Query(API_KEY) String api_key);
+    @GET("movie/{movieId}/videos")
+    Call<TMDBVideos> videos(@Path("movieId") int movieId, @Query(API_KEY) String api_key);
 }

@@ -22,37 +22,31 @@ import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
-import android.arch.persistence.room.Update;
+import android.graphics.Movie;
 
 import java.util.List;
 
 @Dao
-public interface MovieDao {
+public interface ReviewDao {
 
-    @Query("SELECT * FROM movies WHERE id = :id")
+    @Query("SELECT * FROM reviews WHERE id = :id")
     LiveData<MovieEntry> loadById(int id);
 
-    @Query("SELECT * FROM movies")
-    LiveData<List<MovieEntry>> loadAll();
-
-    @Query("SELECT * FROM movies ORDER BY userRating")
-    LiveData<List<MovieEntry>> loadAllByUserRating();
+    @Query("SELECT * FROM reviews WHERE movieId = :movieId")
+    LiveData<List<ReviewEntry>> loadAllByMovieId(int movieId);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(MovieEntry movieEntry);
 
-    @Update(onConflict = OnConflictStrategy.REPLACE)
-    void update(MovieEntry movieEntry);
-
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insertAll(List<MovieEntry> movieEntries);
+    void insertAll(LiveData<ReviewEntry> reviewEntries);
 
     @Delete
-    void delete(MovieEntry movieEntry);
+    void delete(ReviewEntry reviewEntry);
 
-    /**
-     * Deletes all rows in the movies table.
-     */
-    @Query("DELETE FROM movies")
+    @Query("SELECT * FROM reviews WHERE movieId = :movieId")
+    void deleteAllByMovieId(int movieId);
+
+    @Query("DELETE FROM reviews")
     void deleteAll();
 }
