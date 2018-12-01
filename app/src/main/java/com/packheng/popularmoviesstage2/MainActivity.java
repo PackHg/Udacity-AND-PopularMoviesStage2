@@ -20,14 +20,12 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
-import android.graphics.Rect;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
@@ -72,14 +70,28 @@ public class MainActivity extends AppCompatActivity
 
     private AppDatabase mDb;
 
+    // Tag used for saving and restoring data into and from SharedPreferences
+    private static final String USER_DATA = "user data";
+    // Key used for saving and restoring the mIsDownloaded boolean into and from SharedPreferences
+    private static final String KEY_IS_DOWNLOADED = "key is downloaded";
+    // For tracking whether the movies have already been downloaded.
+    private boolean mIsDownloaded = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mMainBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
 
-        // Set number of columns in the RecyclerView.
-        int numberOfColumns = calculateBestSpanCount((int) getResources()
-                .getDimension(R.dimen.main_movie_poster_width));
+        SharedPreferences sp = getSharedPreferences(USER_DATA, 0);
+        if (sp != null) {
+            mIsDownloaded = sp.getBoolean(KEY_IS_DOWNLOADED, mIsDownloaded);
+        }
+
+        // Get the sort by type from SharedPreferences and register the listener
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        mSortBy = prefs.getString(getString(R.string.pref_sort_by_key),
+                getString(R.string.pref_sort_by_most_popular));
+        prefs.registerOnSharedPreferenceChangeListener(this);
 
         mMovies = new ArrayList<MovieEntry>();
 
@@ -90,6 +102,8 @@ public class MainActivity extends AppCompatActivity
         mMainBinding.mainRecyclerView.setHasFixedSize(true);
         mMovieAdapter = new MovieAdapter(this, mMovies, this);
         mMainBinding.mainRecyclerView.setAdapter(mMovieAdapter);
+        int numberOfColumns = calculateBestSpanCount((int) getResources()
+                .getDimension(R.dimen.main_movie_poster_width));
         mMainBinding.mainRecyclerView.setLayoutManager(new GridLayoutManager(this, numberOfColumns));
 
         mMainBinding.mainSwipeRefresh.setColorSchemeResources(R.color.colorPrimary, R.color.green, R.color.yellow);
@@ -97,7 +111,7 @@ public class MainActivity extends AppCompatActivity
         mMainBinding.mainSwipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                loadMoviesData();
+                downloadMoviesData();
             }
         });
 
@@ -107,12 +121,6 @@ public class MainActivity extends AppCompatActivity
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         mApiService = retrofit.create(TMDBEndpointInterface.class);
-
-        // Get the sort by type from SharedPreferences and register the listener
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-        mSortBy = sp.getString(getString(R.string.pref_sort_by_key),
-                getString(R.string.pref_sort_by_most_popular));
-        sp.registerOnSharedPreferenceChangeListener(this);
 
         mDb = AppDatabase.getsIntance(getApplicationContext());
 
@@ -126,13 +134,15 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        loadMoviesData();
+        if (!mIsDownloaded) {
+            downloadMoviesData();
+        }
     }
 
     /**
-     * Loads movies data.
+     * Downloads the movies data from the TMDB API into the database.
      */
-    private void loadMoviesData() {
+    private void downloadMoviesData() {
         final String API_KEY_VALUE = BuildConfig.ApiKey;
         final String BASE_URL = "https://image.tmdb.org/t/p";
         final String IMAGE_SIZE = "/w185";
@@ -141,11 +151,11 @@ public class MainActivity extends AppCompatActivity
         mMainBinding.mainSwipeRefresh.setRefreshing(true);
 
         if (isNetworkConnected(this)) {
-            mMainBinding.mainRecyclerView.setVisibility(View.GONE);
+//            mMainBinding.mainRecyclerView.setVisibility(View.GONE);
             mMainBinding.mainEmptyTextView.setVisibility(View.GONE);
 
             // Accessing the API
-            Log.d(LOG_TAG, "loadMoviesData() - Starts loading movies from API.");
+            Log.d(LOG_TAG, "downloadMoviesData() - Starts loading movies from API.");
 
             Call<TMDBMovies> call;
             if (mSortBy.equals(getString(R.string.pref_sort_by_top_rated))) {
@@ -160,7 +170,6 @@ public class MainActivity extends AppCompatActivity
                 @Override
                 public void onResponse(Call<TMDBMovies> call, Response<TMDBMovies> response) {
                     mMainBinding.mainSwipeRefresh.setRefreshing(false);
-                    mMainBinding.mainEmptyTextView.setVisibility(View.GONE);
                     mMainBinding.mainRecyclerView.setVisibility(View.VISIBLE);
 
                     if (response.body() != null) {
@@ -174,7 +183,7 @@ public class MainActivity extends AppCompatActivity
                                     if (result != null) {
                                         int movieId = result.getId();
                                         String title = result.getOriginalTitle();
-                                        Log.d(LOG_TAG, "loadMoviesData() - movie title : " + title + ".");
+                                        Log.d(LOG_TAG, "downloadMoviesData() - movie title : " + title + ".");
                                         String posterUrl;
                                         if (!result.getPosterPath().isEmpty()) {
                                             posterUrl = BASE_URL + IMAGE_SIZE + result.getPosterPath();
@@ -191,9 +200,10 @@ public class MainActivity extends AppCompatActivity
                                 }
 
                                 mDb.movieDao().deleteAll();
-                                Log.d(LOG_TAG, "loadMoviesData() - deleted all movies in database.");
+                                Log.d(LOG_TAG, "downloadMoviesData() - deleted all movies in database.");
                                 mDb.movieDao().insertAll(mMovies);
-                                Log.d(LOG_TAG, "loadMoviesData() - inserted downloaded movies in movie database.");
+                                Log.d(LOG_TAG, "downloadMoviesData() - inserted downloaded movies in movie database.");
+                                mIsDownloaded = true;
                             }
                         });
                     } else {
@@ -231,7 +241,7 @@ public class MainActivity extends AppCompatActivity
 
         switch (id) {
             case R.id.menu_item_refresh:
-                loadMoviesData();
+                downloadMoviesData();
                 return true;
 
             case R.id.menu_item_settings:
@@ -243,16 +253,26 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    // Reloads the mMovies if the shared preference (sort by) changes
+    // Reloads the movies if the shared preference (sort by) changes
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (key.equals(getString(R.string.pref_sort_by_key))) {
             String sortByPref = sharedPreferences.getString(key, mSortBy);
             if (!mSortBy.equals(sortByPref)) {
                 mSortBy = sortByPref;
-                loadMoviesData();
+                downloadMoviesData();
             }
         }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        SharedPreferences sp = getSharedPreferences(USER_DATA, 0);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putBoolean(KEY_IS_DOWNLOADED, mIsDownloaded);
+        editor.apply();
     }
 
     @Override

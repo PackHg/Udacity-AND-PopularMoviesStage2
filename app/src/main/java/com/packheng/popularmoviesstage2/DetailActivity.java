@@ -41,9 +41,9 @@ public class DetailActivity extends AppCompatActivity {
 
     // Extra for the task ID to be received in the intent
     public static final String EXTRA_MOVIE_ID = "extra movie id";
-    // Extra for the task ID to be received after rotation
-    public static final String INSTANCE_MOVIE_ID = "instance movie id";
-    public static final int DEFAULT_MOVIE_ID = -1;
+    // Key for the task ID to be received after rotation
+    private static final String INSTANCE_MOVIE_ID = "instance movie id";
+    private static final int DEFAULT_MOVIE_ID = -1;
 
     private int mMovieId = DEFAULT_MOVIE_ID;
 
