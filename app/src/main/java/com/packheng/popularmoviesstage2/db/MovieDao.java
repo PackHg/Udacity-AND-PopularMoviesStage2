@@ -30,29 +30,32 @@ import java.util.List;
 public interface MovieDao {
 
     @Query("SELECT * FROM movies WHERE id = :id")
-    LiveData<MovieEntry> loadById(int id);
+    LiveData<MovieEntry> loadMovieWithId(int id);
+
+    @Query("SELECT * FROM movies WHERE movieId = :movieId")
+    LiveData<MovieEntry> loadMovieWithMovieId(int movieId);
 
     @Query("SELECT * FROM movies")
-    LiveData<List<MovieEntry>> loadAll();
+    LiveData<List<MovieEntry>> loadAllMovies();
 
     @Query("SELECT * FROM movies ORDER BY userRating")
-    LiveData<List<MovieEntry>> loadAllByUserRating();
+    LiveData<List<MovieEntry>> loadAllMoviesByUserRating();
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insert(MovieEntry movieEntry);
+    void insertMovie(MovieEntry movieEntry);
 
     @Update(onConflict = OnConflictStrategy.REPLACE)
-    void update(MovieEntry movieEntry);
+    void updateMovie(MovieEntry movieEntry);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insertAll(List<MovieEntry> movieEntries);
+    void insertMovies(List<MovieEntry> movieEntries);
 
     @Delete
-    void delete(MovieEntry movieEntry);
+    void deleteMovie(MovieEntry movieEntry);
 
     /**
      * Deletes all rows in the movies table.
      */
     @Query("DELETE FROM movies")
-    void deleteAll();
+    void deleteAllMovies();
 }

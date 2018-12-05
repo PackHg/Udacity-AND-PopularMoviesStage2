@@ -22,7 +22,6 @@ import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
-import android.graphics.Movie;
 
 import java.util.List;
 
@@ -30,23 +29,23 @@ import java.util.List;
 public interface ReviewDao {
 
     @Query("SELECT * FROM reviews WHERE id = :id")
-    LiveData<MovieEntry> loadById(int id);
+    LiveData<ReviewEntry> loadReviewWithId(int id);
 
     @Query("SELECT * FROM reviews WHERE movieId = :movieId")
-    LiveData<List<ReviewEntry>> loadAllByMovieId(int movieId);
+    LiveData<List<ReviewEntry>> loadReviewsWithMovieId(int movieId);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insert(MovieEntry movieEntry);
+    void insertReview(ReviewEntry reviewEntry);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insertAll(LiveData<ReviewEntry> reviewEntries);
+    void insertReviews(List<ReviewEntry> reviewEntries);
 
     @Delete
-    void delete(ReviewEntry reviewEntry);
+    void deleteReview(ReviewEntry reviewEntry);
 
-    @Query("SELECT * FROM reviews WHERE movieId = :movieId")
-    void deleteAllByMovieId(int movieId);
+    @Query("DELETE FROM reviews WHERE movieId = :movieId")
+    void deleteReviewsWithMovieId(int movieId);
 
     @Query("DELETE FROM reviews")
-    void deleteAll();
+    void deleteAllReviews();
 }

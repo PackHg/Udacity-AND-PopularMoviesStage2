@@ -63,14 +63,14 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
 
             binding = DataBindingUtil.bind(itemView);
             if (binding == null) {
-                Log.e(LOG_TAG, "Can't data bind to the itemView");
+                Log.e(LOG_TAG, "Can't data bind with the item view");
             }
             binding.movieItemImageView.setOnClickListener(this);
         }
 
         @Override
         public void onClick(View v) {
-            int movieId = mMovies.get(getAdapterPosition()).getId();
+            int movieId = mMovies.get(getAdapterPosition()).getMovieId();
             mItemClickListener.onItemClickListener(movieId);
         }
     }

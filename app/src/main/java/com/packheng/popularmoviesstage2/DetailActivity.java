@@ -21,14 +21,19 @@ import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.util.Log;
 import android.view.View;
 
 import com.packheng.popularmoviesstage2.databinding.ActivityDetailBinding;
 import com.packheng.popularmoviesstage2.db.AppDatabase;
 import com.packheng.popularmoviesstage2.db.MovieEntry;
+import com.packheng.popularmoviesstage2.db.ReviewEntry;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import static com.packheng.popularmoviesstage2.utils.DateToStringUtils.formatDateToString;
@@ -49,14 +54,17 @@ public class DetailActivity extends AppCompatActivity {
 
     private AppDatabase mDb;
 
-    ActivityDetailBinding mDetailBinding;
+    private ActivityDetailBinding mDetailBinding;
+
+    private ArrayList<ReviewEntry> mReviews;
+    private ReviewAdapter mReviewAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mDetailBinding = DataBindingUtil.setContentView(this, R.layout.activity_detail);
 
-        mDb = AppDatabase.getsIntance(getApplicationContext());
+        mDb = AppDatabase.getInstance(getApplicationContext());
 
         if (savedInstanceState != null && savedInstanceState.containsKey(INSTANCE_MOVIE_ID)) {
             mMovieId = savedInstanceState.getInt(INSTANCE_MOVIE_ID, DEFAULT_MOVIE_ID);
@@ -67,13 +75,34 @@ public class DetailActivity extends AppCompatActivity {
             mMovieId = intent.getIntExtra(EXTRA_MOVIE_ID, mMovieId);
         }
 
-        // Setup a DetailViewModel
+        Log.d(LOG_TAG, "(PACK) onCreate() - mMovieId = " + mMovieId);
+
+        mReviews = new ArrayList<ReviewEntry>();
+
+        /*
+         * Set up the RecyclerView for movie's reviews
+         */
+        mReviewAdapter = new ReviewAdapter(this, mReviews);
+        mDetailBinding.detailReviewRecyclerView.setAdapter(mReviewAdapter);
+        mDetailBinding.detailReviewRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        /*
+         * Setup a DetailViewModel
+         */
         DetailViewModelFactory factory = new DetailViewModelFactory(mDb, mMovieId);
+        // Observe movie data
         final DetailViewModel detailViewModel = ViewModelProviders.of(this, factory)
                 .get(DetailViewModel.class);
+        // Observe review data
         detailViewModel.getMovie().observe(this, movieEntry -> {
             if (movieEntry != null) {
-                bindMovieToUI(movieEntry);
+                bindDataToUI(movieEntry);
+                // Observe review data
+                detailViewModel.getReviews().observe(this, reviewEntries -> {
+                    if (reviewEntries != null) {
+                        mReviewAdapter.setReviews(reviewEntries);
+                    }
+                });
             }
         });
     }
@@ -84,9 +113,13 @@ public class DetailActivity extends AppCompatActivity {
         super.onSaveInstanceState(outState);
     }
 
-    private void bindMovieToUI(MovieEntry movie) {
+    private void bindDataToUI(MovieEntry movie) {
 
-        // Movie poster
+        Log.d(LOG_TAG, "(PACK) bindDataToUI() - Movie title = " + movie.getTitle());
+
+        /*
+         * Movie poster
+         */
         String posterUrl = movie.getPosterUrl();
         if (!posterUrl.isEmpty()) {
             mDetailBinding.detailPosterEmptyTextView.setVisibility(View.GONE);
@@ -95,11 +128,15 @@ public class DetailActivity extends AppCompatActivity {
             mDetailBinding.detailPosterEmptyTextView.setVisibility(View.VISIBLE);
         }
 
-        // Movie title
+        /*
+         * Movie title
+         */
         mDetailBinding.detailTitleTextView.setText(movie.getTitle());
         mDetailBinding.detailUserRatingTextView.setText(String.format(Locale.getDefault(), "%1.1f", movie.getUserRating()));
 
-        // Movie release date
+        /*
+         * Movie release date
+         */
         Date releaseDate = movie.getReleaseDate();
         if (releaseDate != null) {
             mDetailBinding.detailReleaseDateTextView.setText(formatDateToString(releaseDate));
@@ -107,7 +144,9 @@ public class DetailActivity extends AppCompatActivity {
             mDetailBinding.detailTitleTextView.setText(getString(R.string.unknown));
         }
 
-        // Movie plot synopsis
+        /*
+         * Movie plot synopsis
+         */
         String overview = movie.getPlotSynopsis();
         if (!overview.isEmpty()) {
             mDetailBinding.detailPlotSynopsisTextView.setText(movie.getPlotSynopsis());

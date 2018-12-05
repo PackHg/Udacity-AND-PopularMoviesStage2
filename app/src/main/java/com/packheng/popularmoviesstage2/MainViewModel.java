@@ -37,7 +37,7 @@ public class MainViewModel extends ViewModel {
     public MainViewModel(AppDatabase appDatabase) {
         mDb = appDatabase;
         Log.d(LOG_TAG, "Actively retrieving the movies from the Database");
-        mMovies = mDb.movieDao().loadAll();
+        mMovies = mDb.movieDao().loadAllMovies();
     }
 
     public LiveData<List<MovieEntry>> getMovies() {

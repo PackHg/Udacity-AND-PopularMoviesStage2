@@ -36,9 +36,12 @@ import android.view.View;
 import com.packheng.popularmoviesstage2.TMDB.TMDBEndpointInterface;
 import com.packheng.popularmoviesstage2.TMDB.TMDBMovie;
 import com.packheng.popularmoviesstage2.TMDB.TMDBMovies;
+import com.packheng.popularmoviesstage2.TMDB.TMDBReview;
+import com.packheng.popularmoviesstage2.TMDB.TMDBReviews;
 import com.packheng.popularmoviesstage2.databinding.ActivityMainBinding;
 import com.packheng.popularmoviesstage2.db.AppDatabase;
 import com.packheng.popularmoviesstage2.db.MovieEntry;
+import com.packheng.popularmoviesstage2.db.ReviewEntry;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -68,7 +71,7 @@ public class MainActivity extends AppCompatActivity
     private MovieAdapter mMovieAdapter;
 
     // For binding with the components of the layout
-    ActivityMainBinding mMainBinding;
+    private ActivityMainBinding mMainBinding;
 
     private TMDBEndpointInterface mApiService;
 
@@ -126,7 +129,7 @@ public class MainActivity extends AppCompatActivity
                 .build();
         mApiService = retrofit.create(TMDBEndpointInterface.class);
 
-        mDb = AppDatabase.getsIntance(getApplicationContext());
+        mDb = AppDatabase.getInstance(getApplicationContext());
 
         // Setup a MainViewModel
         MainViewModelFactory factory = new MainViewModelFactory(mDb);
@@ -166,7 +169,7 @@ public class MainActivity extends AppCompatActivity
 
     private void downloadMovies() {
         // Accessing the API
-        Log.d(LOG_TAG, "downloadMovies() - Starts loading movies from API.");
+        Log.d(LOG_TAG, "(PACK) downloadMovies() - Starts loading movies from API.");
 
         Call<TMDBMovies> call;
         if (mSortBy.equals(getString(R.string.pref_sort_by_top_rated))) {
@@ -178,6 +181,7 @@ public class MainActivity extends AppCompatActivity
         }
 
         call.enqueue(new Callback<TMDBMovies>() {
+
             @Override
             public void onResponse(Call<TMDBMovies> call, Response<TMDBMovies> response) {
                 mMainBinding.mainSwipeRefresh.setRefreshing(false);
@@ -193,7 +197,7 @@ public class MainActivity extends AppCompatActivity
                                 if (result != null) {
                                     int movieId = result.getId();
                                     String title = result.getOriginalTitle();
-                                    Log.d(LOG_TAG, "downloadData() - movie title : " + title + ".");
+                                    Log.d(LOG_TAG, "(PACK) downloadMovies() - movie title : " + title + ".");
                                     String posterUrl;
                                     if (!result.getPosterPath().isEmpty()) {
                                         posterUrl = BASE_URL + IMAGE_SIZE + result.getPosterPath();
@@ -209,11 +213,13 @@ public class MainActivity extends AppCompatActivity
                                 }
                             }
 
-                            mDb.movieDao().deleteAll();
-                            Log.d(LOG_TAG, "downloadMovies() - deleted all movies in database.");
-                            mDb.movieDao().insertAll(mMovies);
-                            Log.d(LOG_TAG, "downloadMovies() - inserted downloaded movies in movie database.");
+                            mDb.movieDao().deleteAllMovies();
+                            Log.d(LOG_TAG, "(PACK) downloadMovies() - deleted all movies in database.");
+                            mDb.movieDao().insertMovies(mMovies);
+                            Log.d(LOG_TAG, "(PACK) downloadMovies() - inserted downloaded movies into database.");
                             mIsDownloaded = true;
+
+                            downloadReviews();
                         }
                     });
                 } else {
@@ -228,9 +234,65 @@ public class MainActivity extends AppCompatActivity
                 mMainBinding.mainSwipeRefresh.setRefreshing(false);
                 mMainBinding.mainRecyclerView.setVisibility(View.GONE);
                 mMainBinding.mainEmptyTextView.setVisibility(View.VISIBLE);
-                mMainBinding.mainEmptyTextView.setText(R.string.issue_with_fetching_data);
+                mMainBinding.mainEmptyTextView.setText(R.string.issue_with_fetching_movie_data);
             }
         });
+    }
+
+    private void downloadReviews() {
+        // Delete all existing reviews
+        AppExecutors.getInstance().diskIO().execute(new Runnable() {
+            @Override
+            public void run() {
+                mDb.reviewDao().deleteAllReviews();
+                Log.d(LOG_TAG, "(PACK) downloadReviews() - Deleted all reviews from database.");
+            }
+        });
+
+        // Accessing the API
+        Log.d(LOG_TAG, "(PACK) downloadReviews() - Starts loading reviews from API.");
+
+        for(MovieEntry movie: mMovies) {
+            Call<TMDBReviews> call = mApiService.reviews(movie.getMovieId(), API_KEY_VALUE);
+
+            call.enqueue(new Callback<TMDBReviews>() {
+
+                @Override
+                public void onResponse(Call<TMDBReviews> call, Response<TMDBReviews> response) {
+                    if (response.body() != null) {
+                        AppExecutors.getInstance().diskIO().execute(new Runnable() {
+                            @Override
+                            public void run() {
+                                List<TMDBReview> results = response.body().getResults();
+                                ArrayList<ReviewEntry> reviews = new ArrayList<>();
+                                for(TMDBReview result: results) {
+                                    reviews.add(new ReviewEntry(
+                                            result.getId(),
+                                            movie.getMovieId(),
+                                            result.getAuthor(),
+                                            result.getContent(),
+                                            result.getUrl())
+                                    );
+                                    if (result.getContent().length() >= 20) {
+                                        Log.d(LOG_TAG, "(PACK) downloadReviews() - Review: " + result.getContent().substring(0, 19) + "...");
+                                    } else {
+                                        Log.d(LOG_TAG, "(PACK) downloadReviews() - Review: " + result.getContent());
+                                    }
+                                }
+                                mDb.reviewDao().insertReviews(reviews);
+                                Log.d(LOG_TAG, "(PACK) downloadReviews() - inserted reviews of the following movie into database: " + movie.getTitle());
+                            }
+                        });
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<TMDBReviews> call, Throwable t) {
+                    // Do nothing
+                }
+            });
+        }
+
     }
 
     @Override
@@ -313,10 +375,10 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onItemClickListener(int movieId) {
+    public void onItemClickListener(int actualMovieId) {
         // Launch DetailActivity with the movieId as an extra in the intent
         Intent intent = new Intent(MainActivity.this, DetailActivity.class);
-        intent.putExtra(DetailActivity.EXTRA_MOVIE_ID, movieId);
+        intent.putExtra(DetailActivity.EXTRA_MOVIE_ID, actualMovieId);
         startActivity(intent);
     }
 }

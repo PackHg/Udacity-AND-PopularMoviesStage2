@@ -20,21 +20,19 @@ import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
 
-import java.util.Date;
-
 @Entity(tableName = "reviews")
 public class ReviewEntry {
 
     @PrimaryKey(autoGenerate = true)
     private int id;
-    private int reviewId;
+    private String reviewId;
     private int movieId;
     private String author;
     private String content;
     private String url;
 
     @Ignore
-    public ReviewEntry(int reviewId, int movieId, String author, String content, String url) {
+    public ReviewEntry(String reviewId, int movieId, String author, String content, String url) {
         this.reviewId = reviewId;
         this.movieId = movieId;
         this.author = author;
@@ -42,7 +40,7 @@ public class ReviewEntry {
         this.url = url;
     }
 
-    public ReviewEntry(int id, int reviewId, int movieId, String author, String content, String url) {
+    public ReviewEntry(int id, String reviewId, int movieId, String author, String content, String url) {
         this.id = id;
         this.reviewId = reviewId;
         this.movieId = movieId;
@@ -55,7 +53,7 @@ public class ReviewEntry {
         return id;
     }
 
-    public int getReviewId() {
+    public String getReviewId() {
         return reviewId;
     }
     public int getMovieId() {

@@ -18,7 +18,6 @@
 <resources>
     <string name="app_name">Popular Movies</string>
     <string name="settings">Settings</string>
-    <!--TODO: is movie_details used? -->
     <string name="movie_details">Movie details</string>
 
     <!-- Labels -->
@@ -51,11 +50,20 @@
 
     <!-- Warning messages -->
     <string name="no_internet">No Internet.\n Please check network connectivity.</string>
-    <string name="no_movies_data_found">No movies data found.</string>
-    <string name="issue_with_fetching_data">Oops! There\'s an issue with loading movies data.</string>
+    <string name="no_movies_data_found">No movies data found when downloading.</string>
+    <string name="issue_with_fetching_movie_data">Oops! There\'s an issue with downloading movies data.</string>
     <string name="no_poster_found">No poster found</string>
     <string name="unknown">Unknown</string>
     <string name="no_plot_synopsis_found">No plot synopsis found</string>
+    <string name="no_review_data_found">No review data found when downloading.</string>
+    <string name="issue_with_fetching_review_data">Oops! There\'s an issue with downloading review data.</string>
+
+
+    <!-- Review -->
+    <string name="review_author_label">Author: </string>
+    <string name="review_unknown_author">Unknown author</string>
+    <string name="review_no_content">No review content</string>
+    <string name="review_content_example">Amazing. Visually stunning. So much going on, but somehow also clear and easy to understand. A little flabby in the middle third, but given the huge cast and story to cover it is very understandable. The highlight was the parings of characters from different stories and their interactions.</string>
 
     <!-- Example -->
     <string name="blade_runner_title">Blade Runner: Final Cut</string>

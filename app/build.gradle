@@ -10,7 +10,6 @@ android {
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
-
     buildTypes {
         debug {
             buildConfigField 'String', "ApiKey", MyTheMovieDbOrg_ApiKey
@@ -45,7 +44,6 @@ dependencies {
     annotationProcessor "android.arch.persistence.room:compiler:1.1.1"
 
     // ViewModel and LiveData
-    implementation "android.arch.lifecycle:extensions:1.1.1"
     implementation "android.arch.lifecycle:extensions:1.1.1"
     annotationProcessor "android.arch.lifecycle:compiler:1.1.1"
 
