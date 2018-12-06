@@ -19,6 +19,7 @@
     <string name="app_name">Popular Movies</string>
     <string name="settings">Settings</string>
     <string name="movie_details">Movie details</string>
+    <string name="reviews">Reviews</string>
 
     <!-- Labels -->
     <string name="user_rating_label">User Rating:&#160;</string>

@@ -66,6 +66,7 @@
             <TextView
                 android:id="@+id/detail_user_rating_label_text_view"
                 style="@style/DetailTextViewStyle"
+                android:textStyle="bold"
                 android:text="@string/user_rating_label"
                 app:layout_constraintLeft_toRightOf="@id/detail_poster_image_view"
                 app:layout_constraintTop_toTopOf="@+id/detail_poster_image_view" />
@@ -83,6 +84,7 @@
                 style="@style/DetailTextViewStyle"
                 android:layout_marginTop="@dimen/default_margin"
                 android:text="@string/release_date_label"
+                android:textStyle="bold"
                 app:layout_constraintLeft_toRightOf="@id/detail_poster_image_view"
                 app:layout_constraintTop_toBottomOf="@+id/detail_user_rating_text_view" />
 
@@ -109,13 +111,24 @@
                 app:barrierDirection="bottom"
                 app:constraint_referenced_ids="detail_poster_image_view,detail_plot_synopsis_text_view" />
 
+            <TextView
+                android:id="@+id/detail_number_of_reviews"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/default_margin"
+                android:textAppearance="?android:textAppearanceMedium"
+                android:textStyle="bold"
+                app:layout_constraintTop_toBottomOf="@+id/detail_barrier"
+                tools:text="4 Reviews"/>
+
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/detail_review_recycler_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/default_margin"
+                android:layout_marginBottom="@dimen/default_margin"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/detail_barrier" />
+                app:layout_constraintTop_toBottomOf="@id/detail_number_of_reviews" />
 
         </android.support.constraint.ConstraintLayout>
 

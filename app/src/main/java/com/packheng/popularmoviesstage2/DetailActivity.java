@@ -16,11 +16,13 @@
 
 package com.packheng.popularmoviesstage2;
 
+import android.annotation.SuppressLint;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
 import android.view.View;
@@ -85,6 +87,8 @@ public class DetailActivity extends AppCompatActivity {
         mReviewAdapter = new ReviewAdapter(this, mReviews);
         mDetailBinding.detailReviewRecyclerView.setAdapter(mReviewAdapter);
         mDetailBinding.detailReviewRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mDetailBinding.detailReviewRecyclerView.addItemDecoration(
+                new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
 
         /*
          * Setup a DetailViewModel
@@ -101,6 +105,9 @@ public class DetailActivity extends AppCompatActivity {
                 detailViewModel.getReviews().observe(this, reviewEntries -> {
                     if (reviewEntries != null) {
                         mReviewAdapter.setReviews(reviewEntries);
+                        // Display the number of reviews on UI
+                        mDetailBinding.detailNumberOfReviews.setText(String.format(Locale.getDefault(),
+                                "%d %s", reviewEntries.size(), getString(R.string.reviews)));
                     }
                 });
             }
@@ -113,6 +120,7 @@ public class DetailActivity extends AppCompatActivity {
         super.onSaveInstanceState(outState);
     }
 
+    @SuppressLint("DefaultLocale")
     private void bindDataToUI(MovieEntry movie) {
 
         Log.d(LOG_TAG, "(PACK) bindDataToUI() - Movie title = " + movie.getTitle());

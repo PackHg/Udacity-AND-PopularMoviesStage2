@@ -39,7 +39,6 @@
         <item name="android:layout_marginTop">@dimen/default_margin</item>
         <item name="android:paddingBottom">@dimen/default_margin</item>
         <item name="android:textAppearance">?android:textAppearanceMedium</item>
-        <item name="android:textStyle">italic</item>
     </style>
 
 </resources>

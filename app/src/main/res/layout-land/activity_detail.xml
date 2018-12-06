@@ -112,13 +112,24 @@
                 app:barrierDirection="bottom"
                 app:constraint_referenced_ids="detail_poster_image_view,detail_plot_synopsis_text_view" />
 
+            <TextView
+                android:id="@+id/detail_number_of_reviews"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/default_margin"
+                android:textAppearance="?android:textAppearanceMedium"
+                android:textStyle="bold"
+                app:layout_constraintTop_toBottomOf="@+id/detail_barrier"
+                tools:text="4 Reviews"/>
+
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/detail_review_recycler_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/default_margin"
+                android:layout_marginBottom="@dimen/default_margin"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/detail_barrier" />
+                app:layout_constraintTop_toBottomOf="@id/detail_number_of_reviews" />
 
         </android.support.constraint.ConstraintLayout>
 
