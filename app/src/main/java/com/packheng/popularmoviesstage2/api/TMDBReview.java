@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.packheng.popularmoviesstage2.TMDB;
+package com.packheng.popularmoviesstage2.api;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

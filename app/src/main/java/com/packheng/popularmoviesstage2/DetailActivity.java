@@ -29,11 +29,15 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
 import android.view.View;
 
+import com.packheng.popularmoviesstage2.adapter.ReviewAdapter;
+import com.packheng.popularmoviesstage2.adapter.TrailerAdapter;
 import com.packheng.popularmoviesstage2.databinding.ActivityDetailBinding;
 import com.packheng.popularmoviesstage2.db.AppDatabase;
 import com.packheng.popularmoviesstage2.db.MovieEntry;
 import com.packheng.popularmoviesstage2.db.ReviewEntry;
 import com.packheng.popularmoviesstage2.db.TrailerEntry;
+import com.packheng.popularmoviesstage2.viewmodel.DetailViewModel;
+import com.packheng.popularmoviesstage2.viewmodel.DetailViewModelFactory;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;

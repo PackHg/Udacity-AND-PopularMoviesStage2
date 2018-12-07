@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.packheng.popularmoviesstage2.TMDB;
+package com.packheng.popularmoviesstage2.api;
 
 import retrofit2.Call;
 import retrofit2.http.GET;

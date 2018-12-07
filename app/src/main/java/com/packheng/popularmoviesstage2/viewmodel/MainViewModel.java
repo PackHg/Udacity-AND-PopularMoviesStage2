@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package com.packheng.popularmoviesstage2;
+package com.packheng.popularmoviesstage2.viewmodel;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ViewModel;
 import android.util.Log;
 
+import com.packheng.popularmoviesstage2.MainActivity;
 import com.packheng.popularmoviesstage2.db.AppDatabase;
 import com.packheng.popularmoviesstage2.db.MovieEntry;
 

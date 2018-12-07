@@ -14,26 +14,28 @@
  * limitations under the License.
  */
 
-package com.packheng.popularmoviesstage2;
+package com.packheng.popularmoviesstage2.viewmodel;
 
 import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
 import android.support.annotation.NonNull;
 
 import com.packheng.popularmoviesstage2.db.AppDatabase;
+import com.packheng.popularmoviesstage2.viewmodel.DetailViewModel;
 
-public class MainViewModelFactory extends ViewModelProvider.NewInstanceFactory {
-
+public class DetailViewModelFactory extends ViewModelProvider.NewInstanceFactory {
     private final AppDatabase mDb;
+    private final int mMovieId;
 
-    public MainViewModelFactory(AppDatabase appDatabase) {
-        this.mDb = appDatabase;
+    public DetailViewModelFactory(AppDatabase appDatabase, int movieId) {
+        mDb = appDatabase;
+        mMovieId = movieId;
     }
 
     @NonNull
     @Override
     public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
         //noinspection unchecked
-        return (T) new MainViewModel(mDb);
+        return (T) new DetailViewModel(mDb, mMovieId);
     }
 }

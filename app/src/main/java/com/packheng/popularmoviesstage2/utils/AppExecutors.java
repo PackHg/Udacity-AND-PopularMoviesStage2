@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.packheng.popularmoviesstage2;
+package com.packheng.popularmoviesstage2.utils;
 
 import android.os.Handler;
 import android.os.Looper;

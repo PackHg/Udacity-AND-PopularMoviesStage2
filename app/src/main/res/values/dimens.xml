@@ -29,7 +29,9 @@
     <dimen name="detail_movie_poster_height">278dp</dimen>
 
     <!-- Size of a Youtube video thumbnail in the reycler view of the detail view -->
-    <dimen name="detail_trailer_thumbnail_width">120dp</dimen>
-    <dimen name="detail_trailer_thumbnail_height">90dp</dimen>
+    <!--<dimen name="detail_trailer_thumbnail_width">120dp</dimen>-->
+    <dimen name="detail_trailer_thumbnail_width">240dp</dimen>
+    <!--<dimen name="detail_trailer_thumbnail_height">90dp</dimen>-->
+    <dimen name="detail_trailer_thumbnail_height">180dp</dimen>
 
 </resources>

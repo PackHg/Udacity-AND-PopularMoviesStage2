@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.packheng.popularmoviesstage2;
+package com.packheng.popularmoviesstage2.adapter;
 
 import android.content.Context;
 import android.databinding.DataBindingUtil;
@@ -25,6 +25,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.packheng.popularmoviesstage2.R;
 import com.packheng.popularmoviesstage2.databinding.TrailerItemBinding;
 import com.packheng.popularmoviesstage2.db.TrailerEntry;
 import com.squareup.picasso.Picasso;
