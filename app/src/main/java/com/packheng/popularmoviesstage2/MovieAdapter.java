@@ -87,8 +87,8 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         MovieEntry movie = mMovies.get(position);
         String posterUrl = movie.getPosterUrl();
         String title = movie.getTitle();
+        // TODO: Check Internet connection
         if (!posterUrl.isEmpty()) {
-//            holder.movieEmptyTextView.setVisibility(View.GONE);
             holder.binding.movieItemEmptyTextView.setVisibility(View.GONE);
             Picasso.with(mContext).load(posterUrl).into(holder.binding.movieItemImageView);
         } else {

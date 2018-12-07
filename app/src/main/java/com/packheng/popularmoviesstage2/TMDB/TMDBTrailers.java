@@ -21,14 +21,14 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
-public class TMDBVideos {
+public class TMDBTrailers {
 
     @SerializedName("id")
     @Expose
     private int id;
     @SerializedName("results")
     @Expose
-    private List<TMDBVideo> results = null;
+    private List<TMDBTrailer> results = null;
 
     public int getId() {
         return id;
@@ -38,11 +38,11 @@ public class TMDBVideos {
         this.id = id;
     }
 
-    public List<TMDBVideo> getResults() {
+    public List<TMDBTrailer> getResults() {
         return results;
     }
 
-    public void setResults(List<TMDBVideo> results) {
+    public void setResults(List<TMDBTrailer> results) {
         this.results = results;
     }
 }

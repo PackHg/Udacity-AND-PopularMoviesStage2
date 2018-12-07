@@ -23,6 +23,7 @@ import android.util.Log;
 import com.packheng.popularmoviesstage2.db.AppDatabase;
 import com.packheng.popularmoviesstage2.db.MovieEntry;
 import com.packheng.popularmoviesstage2.db.ReviewEntry;
+import com.packheng.popularmoviesstage2.db.TrailerEntry;
 
 import java.util.List;
 
@@ -34,6 +35,7 @@ public class DetailViewModel extends ViewModel {
 
     private LiveData<MovieEntry> mObservableMovie;
     private LiveData<List<ReviewEntry>> mObservableReviews;
+    private LiveData<List<TrailerEntry>> mObservableTrailers;
 
     public DetailViewModel(AppDatabase appDatabase, int movieId) {
         Log.d(LOG_TAG, String.format("(PACK) Actively retrieving the movie %d from the Database", movieId));
@@ -41,6 +43,9 @@ public class DetailViewModel extends ViewModel {
 
         Log.d(LOG_TAG, "(PACK) Actively retrieving the reviews from the Database");
         mObservableReviews = appDatabase.reviewDao().loadReviewsWithMovieId(movieId);
+
+        Log.d(LOG_TAG, "(PACK) Actively retrieving the trailers from the Database");
+        mObservableTrailers = appDatabase.trailerDao().loadTrailersWithMovieId(movieId);
     }
 
     public LiveData<MovieEntry> getMovie() {
@@ -49,5 +54,9 @@ public class DetailViewModel extends ViewModel {
 
     public LiveData<List<ReviewEntry>> getReviews() {
         return mObservableReviews;
+    }
+
+    public LiveData<List<TrailerEntry>> getTrailers() {
+        return mObservableTrailers;
     }
 }

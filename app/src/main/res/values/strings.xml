@@ -20,6 +20,8 @@
     <string name="settings">Settings</string>
     <string name="movie_details">Movie details</string>
     <string name="reviews">Reviews</string>
+    <string name="trailers">Trailers</string>
+    <string name="trailer">Trailer</string>
 
     <!-- Labels -->
     <string name="user_rating_label">User Rating:&#160;</string>
@@ -27,6 +29,7 @@
 
     <!-- Content descriptions -->
     <string name="movie_poster">A movie poster</string>
+    <string name="trailer_thumbnail">"Thumbnail of a trailer of the movie"</string>
 
     <!-- Main menu items -->
     <string name="menu_item_refresh">Refresh</string>

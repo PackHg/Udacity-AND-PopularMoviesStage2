@@ -20,11 +20,16 @@
     <dimen name="default_horizontal_margin">@dimen/default_margin</dimen>
     <dimen name="default_vertical_margin">@dimen/default_margin</dimen>
 
-    <!-- Width and height of the movie poster item in the recycler view -->
+    <!-- Size of a movie poster item in the recycler view of the main view -->
     <dimen name="main_movie_poster_width">185dp</dimen>
     <dimen name="main_movie_poster_height">278dp</dimen>
 
-    <!-- Width and height of the movie poster in the details view -->
+    <!-- Width and height of the movie poster in the detail view -->
     <dimen name="detail_movie_poster_width">185dp</dimen>
     <dimen name="detail_movie_poster_height">278dp</dimen>
+
+    <!-- Size of a Youtube video thumbnail in the reycler view of the detail view -->
+    <dimen name="detail_trailer_thumbnail_width">120dp</dimen>
+    <dimen name="detail_trailer_thumbnail_height">90dp</dimen>
+
 </resources>

@@ -38,10 +38,13 @@ import com.packheng.popularmoviesstage2.TMDB.TMDBMovie;
 import com.packheng.popularmoviesstage2.TMDB.TMDBMovies;
 import com.packheng.popularmoviesstage2.TMDB.TMDBReview;
 import com.packheng.popularmoviesstage2.TMDB.TMDBReviews;
+import com.packheng.popularmoviesstage2.TMDB.TMDBTrailer;
+import com.packheng.popularmoviesstage2.TMDB.TMDBTrailers;
 import com.packheng.popularmoviesstage2.databinding.ActivityMainBinding;
 import com.packheng.popularmoviesstage2.db.AppDatabase;
 import com.packheng.popularmoviesstage2.db.MovieEntry;
 import com.packheng.popularmoviesstage2.db.ReviewEntry;
+import com.packheng.popularmoviesstage2.db.TrailerEntry;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -167,6 +170,9 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    /**
+     * Download movies' data
+     */
     private void downloadMovies() {
         // Accessing the API
         Log.d(LOG_TAG, "(PACK) downloadMovies() - Starts loading movies from API.");
@@ -220,6 +226,7 @@ public class MainActivity extends AppCompatActivity
                             mIsDownloaded = true;
 
                             downloadReviews();
+                            downloadTrailers();
                         }
                     });
                 } else {
@@ -239,14 +246,15 @@ public class MainActivity extends AppCompatActivity
         });
     }
 
+    /**
+     * Download reviews' data
+     */
     private void downloadReviews() {
+
         // Delete all existing reviews
-        AppExecutors.getInstance().diskIO().execute(new Runnable() {
-            @Override
-            public void run() {
-                mDb.reviewDao().deleteAllReviews();
-                Log.d(LOG_TAG, "(PACK) downloadReviews() - Deleted all reviews from database.");
-            }
+        AppExecutors.getInstance().diskIO().execute(() -> {
+            mDb.reviewDao().deleteAllReviews();
+            Log.d(LOG_TAG, "(PACK) downloadReviews() - Deleted all reviews from database.");
         });
 
         // Accessing the API
@@ -260,39 +268,89 @@ public class MainActivity extends AppCompatActivity
                 @Override
                 public void onResponse(Call<TMDBReviews> call, Response<TMDBReviews> response) {
                     if (response.body() != null) {
-                        AppExecutors.getInstance().diskIO().execute(new Runnable() {
-                            @Override
-                            public void run() {
-                                List<TMDBReview> results = response.body().getResults();
-                                ArrayList<ReviewEntry> reviews = new ArrayList<>();
-                                for(TMDBReview result: results) {
-                                    reviews.add(new ReviewEntry(
-                                            result.getId(),
-                                            movie.getMovieId(),
-                                            result.getAuthor(),
-                                            result.getContent(),
-                                            result.getUrl())
-                                    );
-                                    if (result.getContent().length() >= 20) {
-                                        Log.d(LOG_TAG, "(PACK) downloadReviews() - Review: " + result.getContent().substring(0, 19) + "...");
-                                    } else {
-                                        Log.d(LOG_TAG, "(PACK) downloadReviews() - Review: " + result.getContent());
-                                    }
+                        // TODO: move disIO().execute to the end of the loop?
+                        AppExecutors.getInstance().diskIO().execute(() -> {
+                            List<TMDBReview> results = response.body().getResults();
+                            ArrayList<ReviewEntry> reviews = new ArrayList<>();
+                            for(TMDBReview result: results) {
+                                reviews.add(new ReviewEntry(
+                                        result.getId(),
+                                        movie.getMovieId(),
+                                        result.getAuthor(),
+                                        result.getContent(),
+                                        result.getUrl()));
+
+                                if (result.getContent().length() >= 20) {
+                                    Log.d(LOG_TAG, "(PACK) downloadReviews() - Review: " + result.getContent().substring(0, 19) + "...");
+                                } else {
+                                    Log.d(LOG_TAG, "(PACK) downloadReviews() - Review: " + result.getContent());
                                 }
-                                mDb.reviewDao().insertReviews(reviews);
-                                Log.d(LOG_TAG, "(PACK) downloadReviews() - inserted reviews of the following movie into database: " + movie.getTitle());
                             }
+                            mDb.reviewDao().insertReviews(reviews);
+                            Log.d(LOG_TAG, "(PACK) downloadReviews() - inserted reviews of the following movie into database: " + movie.getTitle());
                         });
                     }
                 }
 
                 @Override
                 public void onFailure(Call<TMDBReviews> call, Throwable t) {
-                    // Do nothing
+                    Log.e(LOG_TAG, "Issue with dowloading the movie's reviews");
                 }
             });
         }
+    }
 
+    /**
+     * Download trailers' data
+     */
+    private void downloadTrailers() {
+
+        // Delete all existing trailers
+        AppExecutors.getInstance().diskIO().execute(new Runnable() {
+            @Override
+            public void run() {
+                mDb.trailerDao().deleteAllTrailers();
+                Log.d(LOG_TAG, "(PACK) downloadTrailers() - Deleted all trailers from database.");
+            }
+        });
+
+        // Accessing the API
+        Log.d(LOG_TAG, "(PACK) downloadTrailers() - Starts loading trailers from API.");
+
+        for(MovieEntry movie: mMovies) {
+            Call<TMDBTrailers> call = mApiService.trailers(movie.getMovieId(), API_KEY_VALUE);
+
+            call.enqueue(new Callback<TMDBTrailers>() {
+
+                @Override
+                public void onResponse(Call<TMDBTrailers> call, Response<TMDBTrailers> response) {
+                    if (response.body() != null) {
+                        List<TMDBTrailer> results = response.body().getResults();
+                        ArrayList<TrailerEntry> trailers = new ArrayList<>();
+
+                        for(TMDBTrailer result: results) {
+                            trailers.add(new TrailerEntry(
+                                    result.getId(),
+                                    movie.getMovieId(),
+                                    result.getKey(),
+                                    result.getSite(),
+                                    result.getType()));
+                            Log.d(LOG_TAG, "(PACK) downloadTrailers() - Trailer's key: " + result.getKey());
+                        }
+
+                        AppExecutors.getInstance().diskIO().execute(() ->
+                                mDb.trailerDao().insertTrailers(trailers));
+                        Log.d(LOG_TAG, "(PACK) downloadTrailers() - Inserted trailers for the following movie: " + movie.getTitle());
+
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<TMDBTrailers> call, Throwable t) {
+                    Log.e(LOG_TAG, "Issue with dowloading the movie's tailers");
+                }
+            });
+        }
     }
 
     @Override

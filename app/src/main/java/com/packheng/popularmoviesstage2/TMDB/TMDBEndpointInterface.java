@@ -37,5 +37,5 @@ public interface TMDBEndpointInterface {
     Call<TMDBReviews> reviews(@Path("movieId") int movieId, @Query(API_KEY) String api_key);
 
     @GET("movie/{movieId}/videos")
-    Call<TMDBVideos> videos(@Path("movieId") int movieId, @Query(API_KEY) String api_key);
+    Call<TMDBTrailers> trailers(@Path("movieId") int movieId, @Query(API_KEY) String api_key);
 }

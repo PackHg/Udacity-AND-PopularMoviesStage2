@@ -17,10 +17,12 @@
 package com.packheng.popularmoviesstage2;
 
 import android.annotation.SuppressLint;
+import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -31,6 +33,7 @@ import com.packheng.popularmoviesstage2.databinding.ActivityDetailBinding;
 import com.packheng.popularmoviesstage2.db.AppDatabase;
 import com.packheng.popularmoviesstage2.db.MovieEntry;
 import com.packheng.popularmoviesstage2.db.ReviewEntry;
+import com.packheng.popularmoviesstage2.db.TrailerEntry;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -54,19 +57,17 @@ public class DetailActivity extends AppCompatActivity {
 
     private int mMovieId = DEFAULT_MOVIE_ID;
 
-    private AppDatabase mDb;
-
     private ActivityDetailBinding mDetailBinding;
 
-    private ArrayList<ReviewEntry> mReviews;
     private ReviewAdapter mReviewAdapter;
+    private TrailerAdapter mTrailerAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mDetailBinding = DataBindingUtil.setContentView(this, R.layout.activity_detail);
 
-        mDb = AppDatabase.getInstance(getApplicationContext());
+        AppDatabase db = AppDatabase.getInstance(getApplicationContext());
 
         if (savedInstanceState != null && savedInstanceState.containsKey(INSTANCE_MOVIE_ID)) {
             mMovieId = savedInstanceState.getInt(INSTANCE_MOVIE_ID, DEFAULT_MOVIE_ID);
@@ -79,21 +80,28 @@ public class DetailActivity extends AppCompatActivity {
 
         Log.d(LOG_TAG, "(PACK) onCreate() - mMovieId = " + mMovieId);
 
-        mReviews = new ArrayList<ReviewEntry>();
-
         /*
-         * Set up the RecyclerView for movie's reviews
+         * Set up the RecyclerView for the movie's reviews
          */
-        mReviewAdapter = new ReviewAdapter(this, mReviews);
+        mReviewAdapter = new ReviewAdapter(this, new ArrayList<ReviewEntry>());
         mDetailBinding.detailReviewRecyclerView.setAdapter(mReviewAdapter);
-        mDetailBinding.detailReviewRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mDetailBinding.detailReviewRecyclerView.setLayoutManager(
+                new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         mDetailBinding.detailReviewRecyclerView.addItemDecoration(
                 new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
 
         /*
+         * Set up the RecyclerView for the movie's trailers
+         */
+        mTrailerAdapter = new TrailerAdapter(this, new ArrayList<TrailerEntry>());
+        mDetailBinding.detailTrailerRecyclerView.setAdapter(mTrailerAdapter);
+        mDetailBinding.detailTrailerRecyclerView.setLayoutManager(
+                new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+
+        /*
          * Setup a DetailViewModel
          */
-        DetailViewModelFactory factory = new DetailViewModelFactory(mDb, mMovieId);
+        DetailViewModelFactory factory = new DetailViewModelFactory(db, mMovieId);
         // Observe movie data
         final DetailViewModel detailViewModel = ViewModelProviders.of(this, factory)
                 .get(DetailViewModel.class);
@@ -104,10 +112,22 @@ public class DetailActivity extends AppCompatActivity {
                 // Observe review data
                 detailViewModel.getReviews().observe(this, reviewEntries -> {
                     if (reviewEntries != null) {
-                        mReviewAdapter.setReviews(reviewEntries);
                         // Display the number of reviews on UI
                         mDetailBinding.detailNumberOfReviews.setText(String.format(Locale.getDefault(),
                                 "%d %s", reviewEntries.size(), getString(R.string.reviews)));
+                        mReviewAdapter.setReviews(reviewEntries);
+                    }
+                });
+
+                // Observe trailer data
+                detailViewModel.getTrailers().observe(this, new Observer<List<TrailerEntry>>() {
+                    @Override
+                    public void onChanged(@Nullable List<TrailerEntry> trailerEntries) {
+                        if (trailerEntries != null){
+                            mDetailBinding.detailNumberOfTrailers.setText(
+                                    String.format(Locale.getDefault(), "%d %s", trailerEntries.size(), getString(R.string.trailers)));
+                            mTrailerAdapter.setTrailers(trailerEntries);
+                        }
                     }
                 });
             }

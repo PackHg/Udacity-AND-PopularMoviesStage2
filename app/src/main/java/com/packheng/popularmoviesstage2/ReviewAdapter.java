@@ -94,6 +94,7 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
     public List<ReviewEntry> getReviews() {
         return mReviews;
     }
+
     /**
      * When data changes, this method updates the list of reviews
      * and notifies the adapter to use the new values on it

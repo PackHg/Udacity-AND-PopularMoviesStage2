@@ -19,7 +19,7 @@ package com.packheng.popularmoviesstage2.TMDB;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class TMDBVideo {
+public class TMDBTrailer {
 
     @SerializedName("id")
     @Expose

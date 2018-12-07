@@ -23,13 +23,13 @@ import android.arch.persistence.room.TypeConverters;
 import android.content.Context;
 import android.util.Log;
 
-@Database(entities = {MovieEntry.class, ReviewEntry.class}, version = 1, exportSchema = false)
+@Database(entities = {MovieEntry.class, ReviewEntry.class, TrailerEntry.class}, version = 1, exportSchema = false)
 @TypeConverters(DateConverter.class)
 public abstract class AppDatabase extends RoomDatabase {
 
     private static final String LOG_TAG = AppDatabase.class.getSimpleName();
     private static final Object LOCK = new Object();
-    private static final String DATABASE_NAME = "movies";
+    private static final String DATABASE_NAME = "popular-movies-db";
     private static AppDatabase sInstance;
 
     public static AppDatabase getInstance(Context context) {
@@ -51,4 +51,5 @@ public abstract class AppDatabase extends RoomDatabase {
 
     public abstract ReviewDao reviewDao();
 
+    public abstract TrailerDao trailerDao();
 }
