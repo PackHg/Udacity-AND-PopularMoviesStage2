@@ -42,11 +42,13 @@ import java.util.List;
 import java.util.Locale;
 
 import static com.packheng.popularmoviesstage2.utils.DateToStringUtils.formatDateToString;
+import static com.packheng.popularmoviesstage2.utils.Utils.launchYoutubeVideo;
 
 /**
  * Shows the details of a movie.
  */
-public class DetailActivity extends AppCompatActivity {
+public class DetailActivity extends AppCompatActivity implements TrailerAdapter.ItemClickListener{
+
     private static final String LOG_TAG = DetailActivity.class.getSimpleName();
 
     // Extra for the task ID to be received in the intent
@@ -93,7 +95,7 @@ public class DetailActivity extends AppCompatActivity {
         /*
          * Set up the RecyclerView for the movie's trailers
          */
-        mTrailerAdapter = new TrailerAdapter(this, new ArrayList<TrailerEntry>());
+        mTrailerAdapter = new TrailerAdapter(this, new ArrayList<TrailerEntry>(), this);
         mDetailBinding.detailTrailerRecyclerView.setAdapter(mTrailerAdapter);
         mDetailBinding.detailTrailerRecyclerView.setLayoutManager(
                 new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
@@ -181,5 +183,11 @@ public class DetailActivity extends AppCompatActivity {
         } else {
             mDetailBinding.detailPlotSynopsisTextView.setText(getString(R.string.no_plot_synopsis_found));
         }
+    }
+
+    @Override
+    public void onItemClickListener(String youtubeKey) {
+        Log.d(LOG_TAG, "(PACK) Launching the Youtube video with key " + youtubeKey);
+        launchYoutubeVideo(this, youtubeKey);
     }
 }

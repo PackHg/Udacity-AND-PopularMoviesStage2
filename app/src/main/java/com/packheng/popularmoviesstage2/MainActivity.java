@@ -61,6 +61,7 @@ import static com.packheng.popularmoviesstage2.utils.NetworkUtils.isNetworkConne
 
 public class MainActivity extends AppCompatActivity
         implements SharedPreferences.OnSharedPreferenceChangeListener, MovieAdapter.ItemClickListener {
+
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
     private static final String TMDB_BASE_URL = "https://api.themoviedb.org/3/";

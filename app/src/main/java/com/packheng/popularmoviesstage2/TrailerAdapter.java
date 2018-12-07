@@ -25,9 +25,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.packheng.popularmoviesstage2.databinding.ReviewItemBinding;
 import com.packheng.popularmoviesstage2.databinding.TrailerItemBinding;
-import com.packheng.popularmoviesstage2.db.ReviewEntry;
 import com.packheng.popularmoviesstage2.db.TrailerEntry;
 import com.squareup.picasso.Picasso;
 
@@ -37,26 +35,43 @@ import java.util.Locale;
 import static com.packheng.popularmoviesstage2.utils.NetworkUtils.isNetworkConnected;
 
 public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerViewHolder> {
+
     private static final String LOG_TAG = TrailerAdapter.class.getSimpleName();
 
     private final Context mContext;
     private List<TrailerEntry> mTrailers;
+    private final ItemClickListener mItemClickListener;
 
-    public TrailerAdapter(Context context, List<TrailerEntry> trailers) {
-        mContext = context;
-        mTrailers = trailers;
+    public interface ItemClickListener {
+        void onItemClickListener(String youtubeKey);
     }
 
-    public class TrailerViewHolder extends RecyclerView.ViewHolder {
+    public TrailerAdapter(Context context, List<TrailerEntry> trailers, ItemClickListener listener) {
+        mContext = context;
+        mTrailers = trailers;
+        mItemClickListener = listener;
+    }
+
+    public class TrailerViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener  {
 
         TrailerItemBinding binding;
 
         public TrailerViewHolder(View itemView) {
             super(itemView);
+
             binding = DataBindingUtil.bind(itemView);
             if (binding == null) {
                 Log.e(LOG_TAG, "Can't data dind with the item view");
+            } else {
+                binding.detailTrailerThumbnail.setOnClickListener(this);
             }
+        }
+
+        @Override
+        public void onClick(View v) {
+            String youtubeKey = mTrailers.get(getAdapterPosition()).getYoutubeKey();
+            Log.d(LOG_TAG, "(PACK) Click on trailer " + getAdapterPosition() + "and key " + youtubeKey);
+            mItemClickListener.onItemClickListener(youtubeKey);
         }
     }
 

@@ -17,7 +17,6 @@
 package com.packheng.popularmoviesstage2;
 
 import android.content.Context;
-import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -32,10 +31,8 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
-import static com.packheng.popularmoviesstage2.DetailActivity.EXTRA_MOVIE_ID;
-
 /**
- * Provides mMainBinding from a data set to views that are displayed within a RecyclerView.
+ * Provides binding from a data set to views that are displayed within a RecyclerView.
  */
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHolder> {
     private static final String LOG_TAG = MovieAdapter.class.getSimpleName();
@@ -64,8 +61,9 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
             binding = DataBindingUtil.bind(itemView);
             if (binding == null) {
                 Log.e(LOG_TAG, "Can't data bind with the item view");
+            } else {
+                binding.movieItemImageView.setOnClickListener(this);
             }
-            binding.movieItemImageView.setOnClickListener(this);
         }
 
         @Override
@@ -87,7 +85,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         MovieEntry movie = mMovies.get(position);
         String posterUrl = movie.getPosterUrl();
         String title = movie.getTitle();
-        // TODO: Check Internet connection
+        // TODO: Check Internet connection?
         if (!posterUrl.isEmpty()) {
             holder.binding.movieItemEmptyTextView.setVisibility(View.GONE);
             Picasso.with(mContext).load(posterUrl).into(holder.binding.movieItemImageView);
