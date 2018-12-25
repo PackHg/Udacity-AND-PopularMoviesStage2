@@ -28,10 +28,13 @@ import java.util.List;
 public interface FavoriteDao {
 
     @Query("SELECT * FROM favorites WHERE movieId = :movieId")
-    LiveData<FavoriteEntry> loadFavoriteWithMovieId(int movieId);
+    LiveData<FavoriteEntry> loadObservableFavoriteWithMovieId(int movieId);
+
+    @Query("SELECT * FROM favorites WHERE movieId = :movieId")
+    FavoriteEntry loadFavoriteWithMovieId(int movieId);
 
     @Query("SELECT * FROM favorites")
-    LiveData<List<FavoriteEntry>> loadAllFavorites();
+    LiveData<List<FavoriteEntry>> loadAllObservableFavorites();
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertFavorite(FavoriteEntry favoriteEntry);

@@ -25,11 +25,11 @@ import java.util.Date;
 public class FavoriteEntry extends Movie {
 
     @Ignore
-    public FavoriteEntry(int movieId, String title, String posterUrl, String plotSynopsis, double userRating, Date releaseDate, boolean isFavorite) {
-        super(movieId, title, posterUrl, plotSynopsis, userRating, releaseDate, isFavorite);
+    public FavoriteEntry(int movieId, String title, String posterUrl, String plotSynopsis, double userRating, Date releaseDate) {
+        super(movieId, title, posterUrl, plotSynopsis, userRating, releaseDate);
     }
 
-    public FavoriteEntry(int id, int movieId, String title, String posterUrl, String plotSynopsis, double userRating, Date releaseDate, boolean isFavorite) {
-        super(id, movieId, title, posterUrl, plotSynopsis, userRating, releaseDate, isFavorite);
+    public FavoriteEntry(int id, int movieId, String title, String posterUrl, String plotSynopsis, double userRating, Date releaseDate) {
+        super(id, movieId, title, posterUrl, plotSynopsis, userRating, releaseDate);
     }
 }

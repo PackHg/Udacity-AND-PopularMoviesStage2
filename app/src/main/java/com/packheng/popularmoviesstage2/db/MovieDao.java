@@ -29,17 +29,11 @@ import java.util.List;
 @Dao
 public interface MovieDao {
 
-    @Query("SELECT * FROM movies WHERE id = :id")
-    LiveData<MovieEntry> loadMovieWithId(int id);
-
     @Query("SELECT * FROM movies WHERE movieId = :movieId")
-    LiveData<MovieEntry> loadMovieWithMovieId(int movieId);
+    LiveData<MovieEntry> loadObservableMovieWithMovieId(int movieId);
 
     @Query("SELECT * FROM movies")
-    LiveData<List<MovieEntry>> loadAllMovies();
-
-    @Query("SELECT * FROM movies ORDER BY userRating")
-    LiveData<List<MovieEntry>> loadAllMoviesByUserRating();
+    LiveData<List<MovieEntry>> loadAllObservableMovies();
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertMovie(MovieEntry movieEntry);

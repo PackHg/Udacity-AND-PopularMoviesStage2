@@ -34,4 +34,6 @@
     <!--<dimen name="detail_trailer_thumbnail_height">90dp</dimen>-->
     <dimen name="detail_trailer_thumbnail_height">180dp</dimen>
 
+    <!-- Height of dividers in the detail view -->
+    <dimen name="detail_divider_height">4dp</dimen>
 </resources>

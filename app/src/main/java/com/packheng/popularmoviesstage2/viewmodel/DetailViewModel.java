@@ -40,7 +40,7 @@ public class DetailViewModel extends ViewModel {
 
     public DetailViewModel(AppDatabase appDatabase, int movieId) {
         Log.d(LOG_TAG, String.format("(PACK) Actively retrieving the movie %d from the Database", movieId));
-        mObservableMovie = appDatabase.movieDao().loadMovieWithMovieId(movieId);
+        mObservableMovie = appDatabase.movieDao().loadObservableMovieWithMovieId(movieId);
 
         Log.d(LOG_TAG, "(PACK) Actively retrieving the reviews from the Database");
         mObservableReviews = appDatabase.reviewDao().loadReviewsWithMovieId(movieId);

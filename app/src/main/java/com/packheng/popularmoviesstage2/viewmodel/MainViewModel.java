@@ -38,7 +38,7 @@ public class MainViewModel extends ViewModel {
     public MainViewModel(AppDatabase appDatabase) {
         mDb = appDatabase;
         Log.d(LOG_TAG, "(PACK) Actively retrieving the movies from the Database");
-        mMovies = mDb.movieDao().loadAllMovies();
+        mMovies = mDb.movieDao().loadAllObservableMovies();
     }
 
     public LiveData<List<MovieEntry>> getMovies() {
