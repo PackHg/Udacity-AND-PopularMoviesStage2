@@ -219,7 +219,7 @@ public class MainActivity extends AppCompatActivity
                                     double userRating = result.getVoteAverage();
                                     Date releaseDate = stringToDate(result.getReleaseDate());
                                     MovieEntry movie = new MovieEntry(movieId, title, posterUrl, plotSynopsis,
-                                            userRating, releaseDate, false);
+                                            userRating, releaseDate);
                                     mMovies.add(movie);
                                 }
                             }
@@ -273,8 +273,6 @@ public class MainActivity extends AppCompatActivity
                 @Override
                 public void onResponse(Call<TMDBReviews> call, Response<TMDBReviews> response) {
                     if (response.body() != null) {
-                        // TODO: move disIO().execute to the end of the loop?
-                        AppExecutors.getInstance().diskIO().execute(() -> {
                             List<TMDBReview> results = response.body().getResults();
                             ArrayList<ReviewEntry> reviews = new ArrayList<>();
                             for(TMDBReview result: results) {
@@ -291,9 +289,11 @@ public class MainActivity extends AppCompatActivity
                                     Log.d(LOG_TAG, "(PACK) downloadReviews() - Review: " + result.getContent());
                                 }
                             }
-                            mDb.reviewDao().insertReviews(reviews);
-                            Log.d(LOG_TAG, "(PACK) downloadReviews() - inserted reviews of the following movie into database: " + movie.getTitle());
-                        });
+
+                            AppExecutors.getInstance().diskIO().execute(() -> {
+                                mDb.reviewDao().insertReviews(reviews);
+                                Log.d(LOG_TAG, "(PACK) downloadReviews() - inserted reviews of the following movie into database: " + movie.getTitle());
+                            });
                     }
                 }
 

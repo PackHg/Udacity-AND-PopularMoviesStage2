@@ -18,22 +18,18 @@ package com.packheng.popularmoviesstage2.db;
 
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.Ignore;
-import android.arch.persistence.room.PrimaryKey;
 
 import java.util.Date;
 
-@Entity(tableName = "movies")
-public class MovieEntry extends Movie {
+@Entity(tableName = "favorites")
+public class FavoriteEntry extends Movie {
 
     @Ignore
-    public MovieEntry(int movieId, String title, String posterUrl, String plotSynopsis,
-                      double userRating, Date releaseDate) {
-        super(movieId, title, posterUrl, plotSynopsis, userRating, releaseDate);
+    public FavoriteEntry(int movieId, String title, String posterUrl, String plotSynopsis, double userRating, Date releaseDate, boolean isFavorite) {
+        super(movieId, title, posterUrl, plotSynopsis, userRating, releaseDate, isFavorite);
     }
 
-    public MovieEntry(int id, int movieId, String title, String posterUrl, String plotSynopsis,
-                 double userRating, Date releaseDate) {
-        super(id, movieId, title, posterUrl, plotSynopsis, userRating, releaseDate);
+    public FavoriteEntry(int id, int movieId, String title, String posterUrl, String plotSynopsis, double userRating, Date releaseDate, boolean isFavorite) {
+        super(id, movieId, title, posterUrl, plotSynopsis, userRating, releaseDate, isFavorite);
     }
 }
-

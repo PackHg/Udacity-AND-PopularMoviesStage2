@@ -23,7 +23,7 @@ import android.arch.persistence.room.TypeConverters;
 import android.content.Context;
 import android.util.Log;
 
-@Database(entities = {MovieEntry.class, ReviewEntry.class, TrailerEntry.class}, version = 1, exportSchema = false)
+@Database(entities = {MovieEntry.class, ReviewEntry.class, TrailerEntry.class, FavoriteEntry.class}, version = 1, exportSchema = false)
 @TypeConverters(DateConverter.class)
 public abstract class AppDatabase extends RoomDatabase {
 
@@ -36,14 +36,14 @@ public abstract class AppDatabase extends RoomDatabase {
 
         if (sInstance == null) {
             synchronized (LOCK) {
-                Log.d(LOG_TAG, "(PACK) Creating new database instance, movies ");
+                Log.d(LOG_TAG, "(PACK) Creating new database instance, " + DATABASE_NAME);
                 sInstance = Room.databaseBuilder(context.getApplicationContext(),
                         AppDatabase.class, DATABASE_NAME)
                         .build();
             }
         }
 
-        Log.d(LOG_TAG, "(PACK) Getting the database instance, movies ");
+        Log.d(LOG_TAG, "(PACK) Getting the database instance, " + DATABASE_NAME);
         return sInstance;
     }
 
@@ -52,4 +52,6 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract ReviewDao reviewDao();
 
     public abstract TrailerDao trailerDao();
+
+    public abstract FavoriteDao favoriteDao();
 }
