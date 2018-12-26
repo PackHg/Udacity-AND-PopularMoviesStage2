@@ -22,6 +22,7 @@ import android.util.Log;
 
 import com.packheng.popularmoviesstage2.DetailActivity;
 import com.packheng.popularmoviesstage2.db.AppDatabase;
+import com.packheng.popularmoviesstage2.db.FavoriteEntry;
 import com.packheng.popularmoviesstage2.db.MovieEntry;
 import com.packheng.popularmoviesstage2.db.ReviewEntry;
 import com.packheng.popularmoviesstage2.db.TrailerEntry;
@@ -37,6 +38,7 @@ public class DetailViewModel extends ViewModel {
     private LiveData<MovieEntry> mObservableMovie;
     private LiveData<List<ReviewEntry>> mObservableReviews;
     private LiveData<List<TrailerEntry>> mObservableTrailers;
+    private LiveData<FavoriteEntry> mObservableFavorite;
 
     public DetailViewModel(AppDatabase appDatabase, int movieId) {
         Log.d(LOG_TAG, String.format("(PACK) Actively retrieving the movie %d from the Database", movieId));
@@ -47,17 +49,24 @@ public class DetailViewModel extends ViewModel {
 
         Log.d(LOG_TAG, "(PACK) Actively retrieving the trailers from the Database");
         mObservableTrailers = appDatabase.trailerDao().loadTrailersWithMovieId(movieId);
+
+        Log.d(LOG_TAG, String.format("(PACK) Actively retrieving the favorite %d from the Database", movieId));
+        mObservableFavorite = appDatabase.favoriteDao().loadObservableFavoriteWithMovieId(movieId);
     }
 
-    public LiveData<MovieEntry> getMovie() {
+    public LiveData<MovieEntry> getObservableMovie() {
         return mObservableMovie;
     }
 
-    public LiveData<List<ReviewEntry>> getReviews() {
+    public LiveData<List<ReviewEntry>> getObservableReviews() {
         return mObservableReviews;
     }
 
-    public LiveData<List<TrailerEntry>> getTrailers() {
+    public LiveData<List<TrailerEntry>> getObservableTrailers() {
         return mObservableTrailers;
+    }
+
+    public LiveData<FavoriteEntry> getObservableFavorite() {
+        return mObservableFavorite;
     }
 }

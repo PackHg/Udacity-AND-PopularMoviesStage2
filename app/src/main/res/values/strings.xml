@@ -63,12 +63,16 @@
     <string name="no_review_data_found">No review data found when downloading.</string>
     <string name="issue_with_fetching_review_data">Oops! There\'s an issue with downloading review data.</string>
 
-
     <!-- Review -->
     <string name="review_author_label">Author: </string>
     <string name="review_unknown_author">Unknown author</string>
     <string name="review_no_content">No review content</string>
     <string name="review_content_example">Amazing. Visually stunning. So much going on, but somehow also clear and easy to understand. A little flabby in the middle third, but given the huge cast and story to cover it is very understandable. The highlight was the parings of characters from different stories and their interactions.</string>
+
+    <!-- Favorite -->
+    <string name="marked_as_favorite">Marked as a favorite</string>
+    <string name="unmarked_as_favorite">Unmarked as a favorite</string>
+    <string name="no_favorites">No movies have been marked as favorite</string>
 
     <!-- Example -->
     <string name="blade_runner_title">Blade Runner: Final Cut</string>

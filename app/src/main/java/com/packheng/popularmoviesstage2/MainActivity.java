@@ -83,7 +83,7 @@ public class MainActivity extends AppCompatActivity
 
     private TMDBEndpointInterface mApiService;
 
-    private AppDatabase mDb;
+    private AppDatabase mDatabase;
 
     // Tag used for saving and restoring data into and from SharedPreferences
     private static final String USER_DATA = "user data";
@@ -137,10 +137,10 @@ public class MainActivity extends AppCompatActivity
                 .build();
         mApiService = retrofit.create(TMDBEndpointInterface.class);
 
-        mDb = AppDatabase.getInstance(getApplicationContext());
+        mDatabase = AppDatabase.getInstance(getApplicationContext());
 
         // Setup a MainViewModel
-        MainViewModelFactory factory = new MainViewModelFactory(mDb);
+        MainViewModelFactory factory = new MainViewModelFactory(mDatabase);
         final MainViewModel mainViewModel = ViewModelProviders.of(this, factory)
                 .get(MainViewModel.class);
         mainViewModel.getMovies().observe(this, movieEntries -> {
@@ -224,9 +224,9 @@ public class MainActivity extends AppCompatActivity
                                 }
                             }
 
-                            mDb.movieDao().deleteAllMovies();
+                            mDatabase.movieDao().deleteAllMovies();
                             Log.d(LOG_TAG, "(PACK) downloadMovies() - deleted all movies in database.");
-                            mDb.movieDao().insertMovies(mMovies);
+                            mDatabase.movieDao().insertMovies(mMovies);
                             Log.d(LOG_TAG, "(PACK) downloadMovies() - inserted downloaded movies into database.");
                             mIsDownloaded = true;
 
@@ -258,7 +258,7 @@ public class MainActivity extends AppCompatActivity
 
         // Delete all existing reviews
         AppExecutors.getInstance().diskIO().execute(() -> {
-            mDb.reviewDao().deleteAllReviews();
+            mDatabase.reviewDao().deleteAllReviews();
             Log.d(LOG_TAG, "(PACK) downloadReviews() - Deleted all reviews from database.");
         });
 
@@ -291,7 +291,7 @@ public class MainActivity extends AppCompatActivity
                             }
 
                             AppExecutors.getInstance().diskIO().execute(() -> {
-                                mDb.reviewDao().insertReviews(reviews);
+                                mDatabase.reviewDao().insertReviews(reviews);
                                 Log.d(LOG_TAG, "(PACK) downloadReviews() - inserted reviews of the following movie into database: " + movie.getTitle());
                             });
                     }
@@ -314,7 +314,7 @@ public class MainActivity extends AppCompatActivity
         AppExecutors.getInstance().diskIO().execute(new Runnable() {
             @Override
             public void run() {
-                mDb.trailerDao().deleteAllTrailers();
+                mDatabase.trailerDao().deleteAllTrailers();
                 Log.d(LOG_TAG, "(PACK) downloadTrailers() - Deleted all trailers from database.");
             }
         });
@@ -344,7 +344,7 @@ public class MainActivity extends AppCompatActivity
                         }
 
                         AppExecutors.getInstance().diskIO().execute(() ->
-                                mDb.trailerDao().insertTrailers(trailers));
+                                mDatabase.trailerDao().insertTrailers(trailers));
                         Log.d(LOG_TAG, "(PACK) downloadTrailers() - Inserted trailers for the following movie: " + movie.getTitle());
 
                     }

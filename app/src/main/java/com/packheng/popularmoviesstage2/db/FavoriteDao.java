@@ -36,6 +36,9 @@ public interface FavoriteDao {
     @Query("SELECT * FROM favorites")
     LiveData<List<FavoriteEntry>> loadAllObservableFavorites();
 
+    @Query("SELECT * FROM favorites")
+    List<FavoriteEntry> loadAllFavorites();
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertFavorite(FavoriteEntry favoriteEntry);
 
