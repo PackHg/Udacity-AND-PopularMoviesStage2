@@ -21,55 +21,14 @@ import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
 
 @Entity(tableName = "reviews")
-public class ReviewEntry {
-
-    @PrimaryKey(autoGenerate = true)
-    private int id;
-    private String reviewId;
-    private int movieId;
-    private String author;
-    private String content;
-    private String url;
+public class ReviewEntry extends Review {
 
     @Ignore
     public ReviewEntry(String reviewId, int movieId, String author, String content, String url) {
-        this.reviewId = reviewId;
-        this.movieId = movieId;
-        this.author = author;
-        this.content = content;
-        this.url = url;
+        super(reviewId, movieId, author, content, url);
     }
 
     public ReviewEntry(int id, String reviewId, int movieId, String author, String content, String url) {
-        this.id = id;
-        this.reviewId = reviewId;
-        this.movieId = movieId;
-        this.author = author;
-        this.content = content;
-        this.url = url;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public String getReviewId() {
-        return reviewId;
-    }
-
-    public int getMovieId() {
-        return movieId;
-    }
-
-    public String getAuthor() {
-        return author;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public String getUrl() {
-        return url;
+        super(id, reviewId, movieId, author, content, url);
     }
 }

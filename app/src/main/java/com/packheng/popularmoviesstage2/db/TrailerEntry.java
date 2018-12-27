@@ -21,55 +21,14 @@ import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
 
 @Entity(tableName = "trailers")
-public class TrailerEntry {
-
-    @PrimaryKey(autoGenerate = true)
-    private int id;
-    private String trailerId;
-    private int movieId;
-    private String youtubeKey;
-    private String site;
-    private String type;
+public class TrailerEntry extends Trailer {
 
     @Ignore
-    public TrailerEntry(String trailerId, int movieId , String youtubeKey, String site, String type) {
-        this.trailerId = trailerId;
-        this.movieId = movieId;
-        this.youtubeKey = youtubeKey;
-        this.site = site;
-        this.type = type;
+    public TrailerEntry(String trailerId, int movieId, String youtubeKey, String site, String type) {
+        super(trailerId, movieId, youtubeKey, site, type);
     }
 
-   public TrailerEntry(int id, String trailerId, int movieId , String youtubeKey, String site, String type) {
-        this.id = id;
-        this.trailerId = trailerId;
-        this.movieId = movieId;
-        this.youtubeKey = youtubeKey;
-        this.site = site;
-        this.type = type;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public String getTrailerId() {
-        return trailerId;
-    }
-
-    public int getMovieId() {
-        return movieId;
-    }
-
-    public String getYoutubeKey() {
-        return youtubeKey;
-    }
-
-    public String getSite() {
-        return site;
-    }
-
-    public String getType() {
-        return type;
+    public TrailerEntry(int id, String trailerId, int movieId, String youtubeKey, String site, String type) {
+        super(id, trailerId, movieId, youtubeKey, site, type);
     }
 }

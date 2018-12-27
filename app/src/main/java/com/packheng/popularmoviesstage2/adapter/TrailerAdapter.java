@@ -27,7 +27,7 @@ import android.view.ViewGroup;
 
 import com.packheng.popularmoviesstage2.R;
 import com.packheng.popularmoviesstage2.databinding.TrailerItemBinding;
-import com.packheng.popularmoviesstage2.db.TrailerEntry;
+import com.packheng.popularmoviesstage2.db.Trailer;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -40,14 +40,14 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerV
     private static final String LOG_TAG = TrailerAdapter.class.getSimpleName();
 
     private final Context mContext;
-    private List<TrailerEntry> mTrailers;
+    private List<Trailer> mTrailers;
     private final ItemClickListener mItemClickListener;
 
     public interface ItemClickListener {
         void onItemClickListener(String youtubeKey);
     }
 
-    public TrailerAdapter(Context context, List<TrailerEntry> trailers, ItemClickListener listener) {
+    public TrailerAdapter(Context context, List<Trailer> trailers, ItemClickListener listener) {
         mContext = context;
         mTrailers = trailers;
         mItemClickListener = listener;
@@ -89,7 +89,7 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerV
         final String BASE = "http://img.youtube.com/vi/";
         final String SIZE = "/0.jpg";
 
-        TrailerEntry trailer = mTrailers.get(position);
+        Trailer trailer = mTrailers.get(position);
 
         if(!isNetworkConnected(mContext)) {
             holder.binding.detailTrailerThumbnail.setVisibility(View.GONE);
@@ -115,7 +115,7 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerV
         return mTrailers.size();
     }
 
-    public List<TrailerEntry> getTrailers() {
+    public List<Trailer> getTrailers() {
         return mTrailers;
     }
 
@@ -123,7 +123,7 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerV
      * When data changes, this method updates the list of trailers
      * and notifies the adapter to use the new values on it
      */
-    public void setTrailers(List<TrailerEntry> trailers) {
+    public void setTrailers(List<Trailer> trailers) {
         mTrailers = trailers;
         notifyDataSetChanged();
     }

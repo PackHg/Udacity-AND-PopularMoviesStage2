@@ -143,7 +143,7 @@ public class MainActivity extends AppCompatActivity
         MainViewModelFactory factory = new MainViewModelFactory(mDatabase);
         final MainViewModel mainViewModel = ViewModelProviders.of(this, factory)
                 .get(MainViewModel.class);
-        mainViewModel.getMovies().observe(this, movieEntries -> {
+        mainViewModel.getObservableMovies().observe(this, movieEntries -> {
             if (movieEntries != null) {
                 mMovieAdapter.setMovies(movieEntries);
             }

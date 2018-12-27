@@ -16,7 +16,6 @@
 
 package com.packheng.popularmoviesstage2;
 
-import android.annotation.SuppressLint;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
@@ -35,8 +34,13 @@ import com.packheng.popularmoviesstage2.adapter.TrailerAdapter;
 import com.packheng.popularmoviesstage2.databinding.ActivityDetailBinding;
 import com.packheng.popularmoviesstage2.db.AppDatabase;
 import com.packheng.popularmoviesstage2.db.FavoriteEntry;
+import com.packheng.popularmoviesstage2.db.FavoriteReviewEntry;
+import com.packheng.popularmoviesstage2.db.FavoriteTrailerEntry;
+import com.packheng.popularmoviesstage2.db.Movie;
 import com.packheng.popularmoviesstage2.db.MovieEntry;
+import com.packheng.popularmoviesstage2.db.Review;
 import com.packheng.popularmoviesstage2.db.ReviewEntry;
+import com.packheng.popularmoviesstage2.db.Trailer;
 import com.packheng.popularmoviesstage2.db.TrailerEntry;
 import com.packheng.popularmoviesstage2.utils.AppExecutors;
 import com.packheng.popularmoviesstage2.viewmodel.DetailViewModel;
@@ -66,6 +70,8 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
 
     private int mMovieId = DEFAULT_MOVIE_ID;
     private MovieEntry mMovie;
+    private ArrayList<ReviewEntry> mReviews;
+    private ArrayList<TrailerEntry> mTrailers;
 
     private ActivityDetailBinding mDetailBinding;
 
@@ -76,7 +82,8 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
 
     private boolean mIsFavorite = false;
     private FavoriteEntry mFavorite;
-    private ArrayList<FavoriteEntry> mFavorites;
+    private ArrayList<FavoriteReviewEntry> mFavoriteReviews;
+    private ArrayList<FavoriteTrailerEntry> mFavoriteTrailers;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,7 +106,7 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
         /*
          * Set up the RecyclerView for the movie's reviews
          */
-        mReviewAdapter = new ReviewAdapter(this, new ArrayList<ReviewEntry>());
+        mReviewAdapter = new ReviewAdapter(this, new ArrayList<Review>());
         mDetailBinding.detailReviewRecyclerView.setAdapter(mReviewAdapter);
         mDetailBinding.detailReviewRecyclerView.setLayoutManager(
                 new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
@@ -109,7 +116,7 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
         /*
          * Set up the RecyclerView for the movie's trailers
          */
-        mTrailerAdapter = new TrailerAdapter(this, new ArrayList<TrailerEntry>(), this);
+        mTrailerAdapter = new TrailerAdapter(this, new ArrayList<Trailer>(), this);
         mDetailBinding.detailTrailerRecyclerView.setAdapter(mTrailerAdapter);
         mDetailBinding.detailTrailerRecyclerView.setLayoutManager(
                 new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
@@ -123,81 +130,113 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
 
         // Observe favorite data
         detailViewModel.getObservableFavorite().observe(this, favoriteEntry -> {
+
             if (favoriteEntry != null) {
                 mIsFavorite = true;
                 setStarCheckboxChecked(true);
                 mFavorite = favoriteEntry;
                 // TODO: if the movie has been a favorite then update the UI with data from the favorites database.
-            }
-        });
 
-        // Observe movie data
-        detailViewModel.getObservableMovie().observe(this, movieEntry -> {
-            if (movieEntry != null) {
-                mMovie = movieEntry;
+                bindDataToUI(mFavorite);
 
-                bindDataToUI(mMovie);
-                // Observe review data
-                detailViewModel.getObservableReviews().observe(this, reviewEntries -> {
-                    if (reviewEntries != null) {
+                // Observe favorite review data
+                detailViewModel.getObservableFavoriteReviews().observe(this, favoriteReviewEntries -> {
+                    if (favoriteReviewEntries != null) {
+                        mFavoriteReviews = (ArrayList<FavoriteReviewEntry>) favoriteReviewEntries;
                         // Display the number of reviews on UI
                         mDetailBinding.detailNumberOfReviews.setText(String.format(Locale.getDefault(),
-                                "%d %s", reviewEntries.size(), getString(R.string.reviews)));
-                        mReviewAdapter.setReviews(reviewEntries);
+                                "%d %s", mFavoriteReviews.size(), getString(R.string.reviews)));
+                        mReviewAdapter.setReviews(new ArrayList<>(mFavoriteReviews));
                     }
                 });
 
-                // Observe trailer data
-                detailViewModel.getObservableTrailers().observe(this, new Observer<List<TrailerEntry>>() {
-                    @Override
-                    public void onChanged(@Nullable List<TrailerEntry> trailerEntries) {
-                        if (trailerEntries != null){
-                            mDetailBinding.detailNumberOfTrailers.setText(
-                                    String.format(Locale.getDefault(), "%d %s", trailerEntries.size(), getString(R.string.trailers)));
-                            mTrailerAdapter.setTrailers(trailerEntries);
-                        }
+                // Observe favorite trailer data
+                detailViewModel.getObservableFavoriteTrailers().observe(this, favoriteTrailerEntries -> {
+                    if (favoriteTrailerEntries != null) {
+                        mFavoriteTrailers = (ArrayList<FavoriteTrailerEntry>) favoriteTrailerEntries;
+                        mDetailBinding.detailNumberOfTrailers.setText(
+                                String.format(Locale.getDefault(), "%d %s", mFavoriteTrailers.size(), getString(R.string.trailers)));
+                        mTrailerAdapter.setTrailers(new ArrayList<>(mFavoriteTrailers));
                     }
                 });
+
+                return;
             }
+
+            // Observe movie data
+            detailViewModel.getObservableMovie().observe(this, movieEntry -> {
+                if (movieEntry != null) {
+                    mMovie = movieEntry;
+
+                    bindDataToUI(mMovie);
+                    // Observe review data
+                    detailViewModel.getObservableReviews().observe(this, reviewEntries -> {
+                        if (reviewEntries != null) {
+                            mReviews = (ArrayList<ReviewEntry>) reviewEntries;
+                            // Display the number of reviews on UI
+                            mDetailBinding.detailNumberOfReviews.setText(String.format(Locale.getDefault(),
+                                    "%d %s", mReviews.size(), getString(R.string.reviews)));
+                            mReviewAdapter.setReviews(new ArrayList<>(mReviews));
+                        }
+                    });
+
+                    // Observe trailer data
+                    detailViewModel.getObservableTrailers().observe(this, trailerEntries -> {
+                        if (trailerEntries != null){
+                            mTrailers = (ArrayList<TrailerEntry>) trailerEntries;
+                            mDetailBinding.detailNumberOfTrailers.setText(
+                                    String.format(Locale.getDefault(), "%d %s", trailerEntries.size(), getString(R.string.trailers)));
+                            mTrailerAdapter.setTrailers(new ArrayList<>(mTrailers));
+                        }
+                    });
+                }
+            });
         });
 
         // Observe the star checkbox state
         mDetailBinding.detailFavoriteCheckbox.setOnClickListener(v -> {
             mIsFavorite = mDetailBinding.detailFavoriteCheckbox.isChecked();
             if (mIsFavorite) {
-                Toast.makeText(DetailActivity.this, getString(R.string.unmarked_as_favorite),
+                Toast.makeText(DetailActivity.this, getString(R.string.marked_as_favorite),
                         Toast.LENGTH_SHORT).show();
+
                 if (mFavorite == null) {
-                    mFavorite = new FavoriteEntry(
-                            mMovie.getMovieId(),
-                            mMovie.getTitle(),
-                            mMovie.getPosterUrl(),
-                            mMovie.getPlotSynopsis(),
-                            mMovie.getUserRating(),
-                            mMovie.getReleaseDate());
+                    // Add movie data into the favorite tables
+
+                    mFavorite = copyMovieEntryToFavoriteEntry(mMovie);
+                    mFavoriteReviews = copyReviewEntriesToFavoriteReviewEntries(mReviews);
+                    mFavoriteTrailers = copyTrailerEntriesToFavoriteTrailerEntries(mTrailers);
+
                     AppExecutors.getInstance().diskIO().execute(() -> {
                         mDatabase.favoriteDao().insertFavorite(mFavorite);
-                        Log.d(LOG_TAG, String.format("(PACK) - Movie %d is added from favorites database", mMovieId));
-
-//                        Log.d(LOG_TAG, "(PACK) - Checking if the movie has been inserted into the favorites database");
-//                        FavoriteEntry favorite = mDatabase.favoriteDao().loadFavoriteWithMovieId(mMovieId);
-//                        if (favorite == null) {
-//                            Log.d(LOG_TAG, "(PACK) - inserted favorites is null");
-//                        } else {
-//                            Log.d(LOG_TAG, "(PACK) - inserted favorite's movieId is " + favorite.getMovieId());
-//                            Log.d(LOG_TAG, "(PACK) - inserted favorite's title is " + favorite.getTitle());
-//                        }
+                        Log.d(LOG_TAG, String.format("(PACK) - Movie %d is added into favorites database", mMovieId));
+                        if (mFavoriteReviews != null) {
+                            mDatabase.favoriteReviewDao().insertFavoriteReviews(mFavoriteReviews);
+                            Log.d(LOG_TAG, String.format("(PACK) - Reviews of movie %d are added into favorites database", mMovieId));
+                        }
+                        if(mFavoriteTrailers != null) {
+                            mDatabase.favoriteTrailerDao().insertFavoriteTrailers(mFavoriteTrailers);
+                            Log.d(LOG_TAG, String.format("(PACK) - Trailers of movie %d are added into favorites database", mMovieId));
+                        }
                     });
                 }
             } else {
-                Toast.makeText(DetailActivity.this, getString(R.string.marked_as_favorite),
+                Toast.makeText(DetailActivity.this, getString(R.string.unmarked_as_favorite),
                         Toast.LENGTH_SHORT).show();
                 if (mFavorite != null) {
+                    // Remove movie data from the favorite tables
+
                     AppExecutors.getInstance().diskIO().execute(() -> {
                         mDatabase.favoriteDao().deleteFavoriteWithMovieId(mMovieId);
                         Log.d(LOG_TAG, String.format("(PACK) - Movie %d is removed from favorites database", mMovieId));
+                        mDatabase.favoriteReviewDao().deleteAllFavoriteReviewsWithMovieId(mMovieId);
+                        Log.d(LOG_TAG, String.format("(PACK) - Removed reviews of movie %d from favorites database", mMovieId));
+                        mDatabase.favoriteTrailerDao().deleteAllFavoriteTrailersWithMovieId(mMovieId);
+                        Log.d(LOG_TAG, String.format("(PACK) - Removed trailers of movie %d from favorites database", mMovieId));
                     });
                     mFavorite = null;
+                    mFavoriteReviews = null;
+                    mFavoriteTrailers = null;
                 }
             }
         });
@@ -209,8 +248,9 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
         super.onSaveInstanceState(outState);
     }
 
-    @SuppressLint("DefaultLocale")
-    private void bindDataToUI(MovieEntry movie) {
+//    @SuppressLint("DefaultLocale")
+//    private void bindDataToUI(MovieEntry movie) {
+    private void bindDataToUI(Movie movie) {
 
         Log.d(LOG_TAG, "(PACK) bindDataToUI() - Movie title = " + movie.getTitle());
 
@@ -266,4 +306,71 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
     private void setStarCheckboxChecked(boolean checked) {
         mDetailBinding.detailFavoriteCheckbox.setChecked(checked);
     }
+
+    /**
+     * Copies a {@link MovieEntry} to {@link FavoriteEntry}.
+     * Returns null if the argument is null.
+     *
+     * @param movieEntry a {@link MovieEntry}.
+     * @return a {@link FavoriteEntry} or null.
+     */
+    FavoriteEntry copyMovieEntryToFavoriteEntry(MovieEntry movieEntry) {
+        if (movieEntry == null) {
+            return null;
+        }
+        return new FavoriteEntry(
+                movieEntry.getMovieId(),
+                movieEntry.getTitle(),
+                movieEntry.getPosterUrl(),
+                movieEntry.getPlotSynopsis(),
+                movieEntry.getUserRating(),
+                movieEntry.getReleaseDate());
+    }
+
+    /**
+     * Copies an {@link ArrayList<ReviewEntry>} to an {@link ArrayList<FavoriteReviewEntry>}.
+     * Returns null if the argument is null.
+     *
+     * @param reviewEntries an {@link ArrayList<ReviewEntry>}.
+     * @return an {@link ArrayList<FavoriteReviewEntry>} or null.
+     */
+    ArrayList<FavoriteReviewEntry> copyReviewEntriesToFavoriteReviewEntries(ArrayList<ReviewEntry> reviewEntries) {
+        if (reviewEntries == null) {
+            return null;
+        }
+
+        ArrayList<FavoriteReviewEntry> favoriteReviews = new ArrayList<>();
+        for (ReviewEntry review: reviewEntries) {
+            favoriteReviews.add( new FavoriteReviewEntry(
+                    review.getReviewId(),
+                    review.getMovieId(),
+                    review.getAuthor(),
+                    review.getContent(),
+                    review.getUrl()));
+        }
+        return favoriteReviews;
+    }
+
+    /**
+     * Copies an {@link ArrayList<TrailerEntry>} to an {@link ArrayList<FavoriteTrailerEntry>}.
+     * Returns null if the argument is null.
+     *
+     * @param trailerEntries an {@link ArrayList<TrailerEntry>}.
+     * @return an {@link ArrayList<FavoriteTrailerEntry>} or null.
+     */
+    ArrayList<FavoriteTrailerEntry> copyTrailerEntriesToFavoriteTrailerEntries(ArrayList<TrailerEntry> trailerEntries) {
+        if (trailerEntries == null) {
+            return null;
+        }
+        ArrayList<FavoriteTrailerEntry> favoriteTrailers = new ArrayList<>();
+        for (TrailerEntry trailer: trailerEntries) {
+            favoriteTrailers.add(new FavoriteTrailerEntry(
+                    trailer.getTrailerId(),
+                    trailer.getMovieId(),
+                    trailer.getYoutubeKey(),
+                    trailer.getSite(),
+                    trailer.getType()));
+        }
+        return favoriteTrailers;
+        }
 }

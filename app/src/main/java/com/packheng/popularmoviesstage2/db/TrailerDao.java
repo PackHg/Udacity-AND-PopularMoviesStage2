@@ -28,25 +28,15 @@ import java.util.List;
 @Dao
 public interface TrailerDao {
 
-    @Query("SELECT * FROM trailers WHERE id = :id")
-    LiveData<TrailerEntry> loadTrailerWithId(int id);
-
     @Query("SELECT * FROM trailers WHERE movieId = :movieId")
-    LiveData<List<TrailerEntry>> loadTrailersWithMovieId(int movieId);
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insertTrailer(TrailerEntry trailerEntry);
+    LiveData<List<TrailerEntry>> loadAllObservableTrailersWithMovieId(int movieId);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertTrailers(List<TrailerEntry> trailerEntries);
 
-    @Delete
-    void deleteTrailer(TrailerEntry trailerEntry);
-
     @Query("DELETE FROM trailers WHERE movieId = :movieId")
-    void deleteTrailersWithMovieId(int movieId);
+    void deleteAllTrailersWithMovieId(int movieId);
 
     @Query("DELETE FROM trailers")
     void deleteAllTrailers();
-
 }

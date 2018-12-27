@@ -22,6 +22,7 @@ import android.util.Log;
 
 import com.packheng.popularmoviesstage2.MainActivity;
 import com.packheng.popularmoviesstage2.db.AppDatabase;
+import com.packheng.popularmoviesstage2.db.FavoriteEntry;
 import com.packheng.popularmoviesstage2.db.MovieEntry;
 
 import java.util.List;
@@ -32,16 +33,23 @@ import java.util.List;
 public class MainViewModel extends ViewModel {
     private static final String LOG_TAG = MainViewModel.class.getSimpleName();
 
-    private final AppDatabase mDb;
-    private final LiveData<List<MovieEntry>> mMovies;
+//    private final AppDatabase mDatabase;
+    private final LiveData<List<MovieEntry>> mObservableMovies;
+    private final LiveData<List<FavoriteEntry>> mObservableFavorites;
 
     public MainViewModel(AppDatabase appDatabase) {
-        mDb = appDatabase;
+//        mDatabase = appDatabase;
         Log.d(LOG_TAG, "(PACK) Actively retrieving the movies from the Database");
-        mMovies = mDb.movieDao().loadAllObservableMovies();
+        mObservableMovies = appDatabase.movieDao().loadAllObservableMovies();
+        Log.d(LOG_TAG, "(PACK) Actively retrieving the favorites from the Database");
+        mObservableFavorites = appDatabase.favoriteDao().loadAllObservableFavorites();
     }
 
-    public LiveData<List<MovieEntry>> getMovies() {
-        return mMovies;
+    public LiveData<List<MovieEntry>> getObservableMovies() {
+        return mObservableMovies;
+    }
+
+    public LiveData<List<FavoriteEntry>> getObservableFavorites() {
+        return mObservableFavorites;
     }
 }

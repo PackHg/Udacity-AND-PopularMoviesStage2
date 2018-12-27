@@ -18,7 +18,6 @@ package com.packheng.popularmoviesstage2.db;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Dao;
-import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
@@ -26,17 +25,17 @@ import android.arch.persistence.room.Query;
 import java.util.List;
 
 @Dao
-public interface ReviewDao {
+public interface FavoriteTrailerDao {
 
-    @Query("SELECT * FROM reviews WHERE movieId = :movieId")
-    LiveData<List<ReviewEntry>> loadAllObservableReviewsWithMovieId(int movieId);
+    @Query("SELECT * FROM favoriteTrailers WHERE movieId = :movieId")
+    LiveData<List<FavoriteTrailerEntry>> loadAllObservableFavoriteTrailersWithMovieId(int movieId);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insertReviews(List<ReviewEntry> reviewEntries);
+    void insertFavoriteTrailers(List<FavoriteTrailerEntry> favoriteTrailerEntries);
 
-    @Query("DELETE FROM reviews WHERE movieId = :movieId")
-    void deleteAllReviewsWithMovieId(int movieId);
+    @Query("DELETE FROM favoriteTrailers WHERE movieId = :movieId")
+    void deleteAllFavoriteTrailersWithMovieId(int movieId);
 
-    @Query("DELETE FROM reviews")
-    void deleteAllReviews();
+    @Query("DELETE FROM favoriteTrailers")
+    void deleteAllFavoriteTrailers();
 }

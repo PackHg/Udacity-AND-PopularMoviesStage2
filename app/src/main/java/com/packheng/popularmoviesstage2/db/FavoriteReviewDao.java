@@ -26,17 +26,17 @@ import android.arch.persistence.room.Query;
 import java.util.List;
 
 @Dao
-public interface ReviewDao {
+public interface FavoriteReviewDao {
 
-    @Query("SELECT * FROM reviews WHERE movieId = :movieId")
-    LiveData<List<ReviewEntry>> loadAllObservableReviewsWithMovieId(int movieId);
+    @Query("SELECT * FROM favoriteReviews WHERE movieId = :movieId")
+    LiveData<List<FavoriteReviewEntry>> loadAllObservableFavoriteReviewsWithMovieId(int movieId);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insertReviews(List<ReviewEntry> reviewEntries);
+    void insertFavoriteReviews(List<FavoriteReviewEntry> favoriteReviewEntries);
 
-    @Query("DELETE FROM reviews WHERE movieId = :movieId")
-    void deleteAllReviewsWithMovieId(int movieId);
+    @Query("DELETE FROM favoriteReviews WHERE movieId = :movieId")
+    void deleteAllFavoriteReviewsWithMovieId(int movieId);
 
-    @Query("DELETE FROM reviews")
-    void deleteAllReviews();
+    @Query("DELETE FROM favoriteReviews")
+    void deleteAllFavoriteReviews();
 }

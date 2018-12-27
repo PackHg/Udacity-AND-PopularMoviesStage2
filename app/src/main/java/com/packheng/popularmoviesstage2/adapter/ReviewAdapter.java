@@ -27,6 +27,7 @@ import android.view.ViewGroup;
 
 import com.packheng.popularmoviesstage2.R;
 import com.packheng.popularmoviesstage2.databinding.ReviewItemBinding;
+import com.packheng.popularmoviesstage2.db.Review;
 import com.packheng.popularmoviesstage2.db.ReviewEntry;
 
 import java.util.List;
@@ -35,11 +36,12 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
     private static final String LOG_TAG = ReviewAdapter.class.getSimpleName();
 
     private final Context mContext;
-    private List<ReviewEntry> mReviews;
+    private List<Review> mReviews;
 
-    public ReviewAdapter(Context context, List<ReviewEntry> reviewEntries) {
+//    public ReviewAdapter(Context context, List<ReviewEntry> reviewEntries) {
+    public ReviewAdapter(Context context, List<Review> reviews) {
         mContext = context;
-        mReviews = reviewEntries;
+        mReviews = reviews;
     }
 
     public class ReviewViewHolder extends RecyclerView.ViewHolder {
@@ -64,7 +66,7 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
 
     @Override
     public void onBindViewHolder(@NonNull ReviewAdapter.ReviewViewHolder holder, int position) {
-        ReviewEntry review = mReviews.get(position);
+        Review review = mReviews.get(position);
 
         // Review author
         String author = review.getAuthor();
@@ -92,7 +94,7 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
         return mReviews.size();
     }
 
-    public List<ReviewEntry> getReviews() {
+    public List<Review> getReviews() {
         return mReviews;
     }
 
@@ -100,7 +102,7 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
      * When data changes, this method updates the list of reviews
      * and notifies the adapter to use the new values on it
      */
-    public void setReviews(List<ReviewEntry> reviews) {
+    public void setReviews(List<Review> reviews) {
         mReviews = reviews;
         notifyDataSetChanged();
     }

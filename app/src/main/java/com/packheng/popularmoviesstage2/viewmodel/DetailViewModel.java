@@ -23,6 +23,8 @@ import android.util.Log;
 import com.packheng.popularmoviesstage2.DetailActivity;
 import com.packheng.popularmoviesstage2.db.AppDatabase;
 import com.packheng.popularmoviesstage2.db.FavoriteEntry;
+import com.packheng.popularmoviesstage2.db.FavoriteReviewEntry;
+import com.packheng.popularmoviesstage2.db.FavoriteTrailerEntry;
 import com.packheng.popularmoviesstage2.db.MovieEntry;
 import com.packheng.popularmoviesstage2.db.ReviewEntry;
 import com.packheng.popularmoviesstage2.db.TrailerEntry;
@@ -38,20 +40,30 @@ public class DetailViewModel extends ViewModel {
     private LiveData<MovieEntry> mObservableMovie;
     private LiveData<List<ReviewEntry>> mObservableReviews;
     private LiveData<List<TrailerEntry>> mObservableTrailers;
+
     private LiveData<FavoriteEntry> mObservableFavorite;
+    private LiveData<List<FavoriteReviewEntry>> mObservableFavoriteReviews;
+    private LiveData<List<FavoriteTrailerEntry>> mObservableFavoriteTrailers;
+
 
     public DetailViewModel(AppDatabase appDatabase, int movieId) {
         Log.d(LOG_TAG, String.format("(PACK) Actively retrieving the movie %d from the Database", movieId));
         mObservableMovie = appDatabase.movieDao().loadObservableMovieWithMovieId(movieId);
 
         Log.d(LOG_TAG, "(PACK) Actively retrieving the reviews from the Database");
-        mObservableReviews = appDatabase.reviewDao().loadReviewsWithMovieId(movieId);
+        mObservableReviews = appDatabase.reviewDao().loadAllObservableReviewsWithMovieId(movieId);
 
         Log.d(LOG_TAG, "(PACK) Actively retrieving the trailers from the Database");
-        mObservableTrailers = appDatabase.trailerDao().loadTrailersWithMovieId(movieId);
+        mObservableTrailers = appDatabase.trailerDao().loadAllObservableTrailersWithMovieId(movieId);
 
-        Log.d(LOG_TAG, String.format("(PACK) Actively retrieving the favorite %d from the Database", movieId));
+        Log.d(LOG_TAG, String.format("(PACK) Actively retrieving the favorite id %d from the Database", movieId));
         mObservableFavorite = appDatabase.favoriteDao().loadObservableFavoriteWithMovieId(movieId);
+
+        Log.d(LOG_TAG, String.format("(PACK) Actively retrieving reviews of the favorite id %d from the Database", movieId));
+        mObservableFavoriteReviews = appDatabase.favoriteReviewDao().loadAllObservableFavoriteReviewsWithMovieId(movieId);
+
+        Log.d(LOG_TAG, String.format("(PACK) Actively retrieving trailers of the favorite id %d from the Database", movieId));
+        mObservableFavoriteTrailers = appDatabase.favoriteTrailerDao().loadAllObservableFavoriteTrailersWithMovieId(movieId);
     }
 
     public LiveData<MovieEntry> getObservableMovie() {
@@ -68,5 +80,12 @@ public class DetailViewModel extends ViewModel {
 
     public LiveData<FavoriteEntry> getObservableFavorite() {
         return mObservableFavorite;
+    }
+
+    public LiveData<List<FavoriteReviewEntry>> getObservableFavoriteReviews() {
+        return mObservableFavoriteReviews;
+
+    } public LiveData<List<FavoriteTrailerEntry>> getObservableFavoriteTrailers() {
+        return mObservableFavoriteTrailers;
     }
 }
