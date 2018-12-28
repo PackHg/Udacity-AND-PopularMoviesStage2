@@ -14,63 +14,62 @@
  * limitations under the License.
  */
 
-package com.packheng.popularmoviesstage2.db;
+package com.packheng.popularmoviesstage2.data.database;
 
 import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
 
 /**
- * Parent class used to extend {@link TrailerEntry} and {@link FavoriteTrailerEntry}.
+ * Parent class used to extend {@link ReviewEntry} and {@link FavoriteReviewEntry}.
  */
-public class Trailer {
-
+public class Review {
     @PrimaryKey(autoGenerate = true)
     private int id;
-    private String trailerId;
+    private String reviewId;
     private int movieId;
-    private String youtubeKey;
-    private String site;
-    private String type;
+    private String author;
+    private String content;
+    private String url;
 
     @Ignore
-    public Trailer(String trailerId, int movieId , String youtubeKey, String site, String type) {
-        this.trailerId = trailerId;
+    public Review(String reviewId, int movieId, String author, String content, String url) {
+        this.reviewId = reviewId;
         this.movieId = movieId;
-        this.youtubeKey = youtubeKey;
-        this.site = site;
-        this.type = type;
+        this.author = author;
+        this.content = content;
+        this.url = url;
     }
 
-    public Trailer(int id, String trailerId, int movieId , String youtubeKey, String site, String type) {
+    public Review(int id, String reviewId, int movieId, String author, String content, String url) {
         this.id = id;
-        this.trailerId = trailerId;
+        this.reviewId = reviewId;
         this.movieId = movieId;
-        this.youtubeKey = youtubeKey;
-        this.site = site;
-        this.type = type;
+        this.author = author;
+        this.content = content;
+        this.url = url;
     }
 
     public int getId() {
         return id;
     }
 
-    public String getTrailerId() {
-        return trailerId;
+    public String getReviewId() {
+        return reviewId;
     }
 
     public int getMovieId() {
         return movieId;
     }
 
-    public String getYoutubeKey() {
-        return youtubeKey;
+    public String getAuthor() {
+        return author;
     }
 
-    public String getSite() {
-        return site;
+    public String getContent() {
+        return content;
     }
 
-    public String getType() {
-        return type;
+    public String getUrl() {
+        return url;
     }
 }

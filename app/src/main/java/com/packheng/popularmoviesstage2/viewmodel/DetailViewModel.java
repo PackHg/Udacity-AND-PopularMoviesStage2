@@ -21,13 +21,13 @@ import android.arch.lifecycle.ViewModel;
 import android.util.Log;
 
 import com.packheng.popularmoviesstage2.DetailActivity;
-import com.packheng.popularmoviesstage2.db.AppDatabase;
-import com.packheng.popularmoviesstage2.db.FavoriteEntry;
-import com.packheng.popularmoviesstage2.db.FavoriteReviewEntry;
-import com.packheng.popularmoviesstage2.db.FavoriteTrailerEntry;
-import com.packheng.popularmoviesstage2.db.MovieEntry;
-import com.packheng.popularmoviesstage2.db.ReviewEntry;
-import com.packheng.popularmoviesstage2.db.TrailerEntry;
+import com.packheng.popularmoviesstage2.data.database.AppDatabase;
+import com.packheng.popularmoviesstage2.data.database.FavoriteEntry;
+import com.packheng.popularmoviesstage2.data.database.FavoriteReviewEntry;
+import com.packheng.popularmoviesstage2.data.database.FavoriteTrailerEntry;
+import com.packheng.popularmoviesstage2.data.database.MovieEntry;
+import com.packheng.popularmoviesstage2.data.database.ReviewEntry;
+import com.packheng.popularmoviesstage2.data.database.TrailerEntry;
 
 import java.util.List;
 

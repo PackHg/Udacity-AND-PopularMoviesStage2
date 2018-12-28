@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.packheng.popularmoviesstage2.db;
+package com.packheng.popularmoviesstage2.data.database;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Dao;
@@ -25,17 +25,23 @@ import android.arch.persistence.room.Query;
 import java.util.List;
 
 @Dao
-public interface FavoriteTrailerDao {
+public interface FavoriteDao {
 
-    @Query("SELECT * FROM favoriteTrailers WHERE movieId = :movieId")
-    LiveData<List<FavoriteTrailerEntry>> loadAllObservableFavoriteTrailersWithMovieId(int movieId);
+    @Query("SELECT * FROM favorites WHERE movieId = :movieId")
+    LiveData<FavoriteEntry> loadObservableFavoriteWithMovieId(int movieId);
+
+    @Query("SELECT * FROM favorites WHERE movieId = :movieId")
+    FavoriteEntry loadFavoriteWithMovieId(int movieId);
+
+    @Query("SELECT * FROM favorites")
+    LiveData<List<FavoriteEntry>> loadAllObservableFavorites();
+
+    @Query("SELECT * FROM favorites")
+    List<FavoriteEntry> loadAllFavorites();
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insertFavoriteTrailers(List<FavoriteTrailerEntry> favoriteTrailerEntries);
+    void insertFavorite(FavoriteEntry favoriteEntry);
 
-    @Query("DELETE FROM favoriteTrailers WHERE movieId = :movieId")
-    void deleteAllFavoriteTrailersWithMovieId(int movieId);
-
-    @Query("DELETE FROM favoriteTrailers")
-    void deleteAllFavoriteTrailers();
+    @Query("DELETE FROM favorites WHERE movieId = :movieId")
+    void deleteFavoriteWithMovieId(int movieId);
 }

@@ -21,9 +21,9 @@ import android.arch.lifecycle.ViewModel;
 import android.util.Log;
 
 import com.packheng.popularmoviesstage2.MainActivity;
-import com.packheng.popularmoviesstage2.db.AppDatabase;
-import com.packheng.popularmoviesstage2.db.FavoriteEntry;
-import com.packheng.popularmoviesstage2.db.MovieEntry;
+import com.packheng.popularmoviesstage2.data.database.AppDatabase;
+import com.packheng.popularmoviesstage2.data.database.FavoriteEntry;
+import com.packheng.popularmoviesstage2.data.database.MovieEntry;
 
 import java.util.List;
 

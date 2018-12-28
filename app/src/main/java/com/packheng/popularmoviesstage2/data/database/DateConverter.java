@@ -14,23 +14,25 @@
  * limitations under the License.
  */
 
-package com.packheng.popularmoviesstage2.db;
+package com.packheng.popularmoviesstage2.data.database;
 
-import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.Ignore;
+import android.arch.persistence.room.TypeConverter;
+
+import java.util.Date;
 
 /**
- * Review that is related to a favorite movie.
+ * {@link TypeConverter} for long to {@link Date}
+ * <p>
+ * This stores the date as a long in the database, but returns it as a {@link Date}
  */
-@Entity(tableName = "favoriteReviews")
-public class FavoriteReviewEntry extends Review {
-
-    @Ignore
-    public FavoriteReviewEntry(String reviewId, int movieId, String author, String content, String url) {
-        super(reviewId, movieId, author, content, url);
+class DateConverter {
+    @TypeConverter
+    public static Date toDate(Long timestamp) {
+        return timestamp == null ? null : new Date(timestamp);
     }
 
-    public FavoriteReviewEntry(int id, String reviewId, int movieId, String author, String content, String url) {
-        super(id, reviewId, movieId, author, content, url);
+    @TypeConverter
+    public static Long toTimestamp(Date date) {
+        return date == null ? null : date.getTime();
     }
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.packheng.popularmoviesstage2.db;
+package com.packheng.popularmoviesstage2.data.database;
 
 import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;

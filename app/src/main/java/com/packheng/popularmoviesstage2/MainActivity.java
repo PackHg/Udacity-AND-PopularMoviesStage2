@@ -16,14 +16,12 @@
 
 package com.packheng.popularmoviesstage2;
 
-import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -35,21 +33,20 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import com.packheng.popularmoviesstage2.api.TMDBEndpointInterface;
-import com.packheng.popularmoviesstage2.api.TMDBMovie;
-import com.packheng.popularmoviesstage2.api.TMDBMovies;
-import com.packheng.popularmoviesstage2.api.TMDBReview;
-import com.packheng.popularmoviesstage2.api.TMDBReviews;
-import com.packheng.popularmoviesstage2.api.TMDBTrailer;
-import com.packheng.popularmoviesstage2.api.TMDBTrailers;
+import com.packheng.popularmoviesstage2.data.api.TMDBEndpointInterface;
+import com.packheng.popularmoviesstage2.data.api.TMDBMovie;
+import com.packheng.popularmoviesstage2.data.api.TMDBMovies;
+import com.packheng.popularmoviesstage2.data.api.TMDBReview;
+import com.packheng.popularmoviesstage2.data.api.TMDBReviews;
+import com.packheng.popularmoviesstage2.data.api.TMDBTrailer;
+import com.packheng.popularmoviesstage2.data.api.TMDBTrailers;
 import com.packheng.popularmoviesstage2.adapter.MovieAdapter;
 import com.packheng.popularmoviesstage2.databinding.ActivityMainBinding;
-import com.packheng.popularmoviesstage2.db.AppDatabase;
-import com.packheng.popularmoviesstage2.db.FavoriteEntry;
-import com.packheng.popularmoviesstage2.db.Movie;
-import com.packheng.popularmoviesstage2.db.MovieEntry;
-import com.packheng.popularmoviesstage2.db.ReviewEntry;
-import com.packheng.popularmoviesstage2.db.TrailerEntry;
+import com.packheng.popularmoviesstage2.data.database.AppDatabase;
+import com.packheng.popularmoviesstage2.data.database.FavoriteEntry;
+import com.packheng.popularmoviesstage2.data.database.MovieEntry;
+import com.packheng.popularmoviesstage2.data.database.ReviewEntry;
+import com.packheng.popularmoviesstage2.data.database.TrailerEntry;
 import com.packheng.popularmoviesstage2.utils.AppExecutors;
 import com.packheng.popularmoviesstage2.viewmodel.MainViewModel;
 import com.packheng.popularmoviesstage2.viewmodel.MainViewModelFactory;

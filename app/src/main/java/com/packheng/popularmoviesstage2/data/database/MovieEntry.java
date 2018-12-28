@@ -14,21 +14,25 @@
  * limitations under the License.
  */
 
-package com.packheng.popularmoviesstage2.db;
+package com.packheng.popularmoviesstage2.data.database;
 
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.Ignore;
-import android.arch.persistence.room.PrimaryKey;
 
-@Entity(tableName = "trailers")
-public class TrailerEntry extends Trailer {
+import java.util.Date;
+
+@Entity(tableName = "movies")
+public class MovieEntry extends Movie {
 
     @Ignore
-    public TrailerEntry(String trailerId, int movieId, String youtubeKey, String site, String type) {
-        super(trailerId, movieId, youtubeKey, site, type);
+    public MovieEntry(int movieId, String title, String posterUrl, String plotSynopsis,
+                      double userRating, Date releaseDate) {
+        super(movieId, title, posterUrl, plotSynopsis, userRating, releaseDate);
     }
 
-    public TrailerEntry(int id, String trailerId, int movieId, String youtubeKey, String site, String type) {
-        super(id, trailerId, movieId, youtubeKey, site, type);
+    public MovieEntry(int id, int movieId, String title, String posterUrl, String plotSynopsis,
+                 double userRating, Date releaseDate) {
+        super(id, movieId, title, posterUrl, plotSynopsis, userRating, releaseDate);
     }
 }
+

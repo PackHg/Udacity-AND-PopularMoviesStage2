@@ -20,8 +20,7 @@ import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
 import android.support.annotation.NonNull;
 
-import com.packheng.popularmoviesstage2.db.AppDatabase;
-import com.packheng.popularmoviesstage2.viewmodel.MainViewModel;
+import com.packheng.popularmoviesstage2.data.database.AppDatabase;
 
 public class MainViewModelFactory extends ViewModelProvider.NewInstanceFactory {
 

@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package com.packheng.popularmoviesstage2.db;
+package com.packheng.popularmoviesstage2.data.database;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Dao;
-import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
@@ -26,17 +25,17 @@ import android.arch.persistence.room.Query;
 import java.util.List;
 
 @Dao
-public interface FavoriteReviewDao {
+public interface FavoriteTrailerDao {
 
-    @Query("SELECT * FROM favoriteReviews WHERE movieId = :movieId")
-    LiveData<List<FavoriteReviewEntry>> loadAllObservableFavoriteReviewsWithMovieId(int movieId);
+    @Query("SELECT * FROM favoriteTrailers WHERE movieId = :movieId")
+    LiveData<List<FavoriteTrailerEntry>> loadAllObservableFavoriteTrailersWithMovieId(int movieId);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insertFavoriteReviews(List<FavoriteReviewEntry> favoriteReviewEntries);
+    void insertFavoriteTrailers(List<FavoriteTrailerEntry> favoriteTrailerEntries);
 
-    @Query("DELETE FROM favoriteReviews WHERE movieId = :movieId")
-    void deleteAllFavoriteReviewsWithMovieId(int movieId);
+    @Query("DELETE FROM favoriteTrailers WHERE movieId = :movieId")
+    void deleteAllFavoriteTrailersWithMovieId(int movieId);
 
-    @Query("DELETE FROM favoriteReviews")
-    void deleteAllFavoriteReviews();
+    @Query("DELETE FROM favoriteTrailers")
+    void deleteAllFavoriteTrailers();
 }

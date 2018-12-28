@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.packheng.popularmoviesstage2.db;
+package com.packheng.popularmoviesstage2.data.database;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Dao;
@@ -22,21 +22,34 @@ import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
+import android.arch.persistence.room.Update;
 
 import java.util.List;
 
 @Dao
-public interface ReviewDao {
+public interface MovieDao {
 
-    @Query("SELECT * FROM reviews WHERE movieId = :movieId")
-    LiveData<List<ReviewEntry>> loadAllObservableReviewsWithMovieId(int movieId);
+    @Query("SELECT * FROM movies WHERE movieId = :movieId")
+    LiveData<MovieEntry> loadObservableMovieWithMovieId(int movieId);
+
+    @Query("SELECT * FROM movies")
+    LiveData<List<MovieEntry>> loadAllObservableMovies();
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insertReviews(List<ReviewEntry> reviewEntries);
+    void insertMovie(MovieEntry movieEntry);
 
-    @Query("DELETE FROM reviews WHERE movieId = :movieId")
-    void deleteAllReviewsWithMovieId(int movieId);
+    @Update(onConflict = OnConflictStrategy.REPLACE)
+    void updateMovie(MovieEntry movieEntry);
 
-    @Query("DELETE FROM reviews")
-    void deleteAllReviews();
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    void insertMovies(List<MovieEntry> movieEntries);
+
+    @Delete
+    void deleteMovie(MovieEntry movieEntry);
+
+    /**
+     * Deletes all rows in the movies table.
+     */
+    @Query("DELETE FROM movies")
+    void deleteAllMovies();
 }

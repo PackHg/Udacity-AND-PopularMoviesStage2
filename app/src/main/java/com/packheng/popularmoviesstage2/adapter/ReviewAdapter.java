@@ -27,8 +27,7 @@ import android.view.ViewGroup;
 
 import com.packheng.popularmoviesstage2.R;
 import com.packheng.popularmoviesstage2.databinding.ReviewItemBinding;
-import com.packheng.popularmoviesstage2.db.Review;
-import com.packheng.popularmoviesstage2.db.ReviewEntry;
+import com.packheng.popularmoviesstage2.data.database.Review;
 
 import java.util.List;
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.packheng.popularmoviesstage2.api;
+package com.packheng.popularmoviesstage2.data.api;
 
 import retrofit2.Call;
 import retrofit2.http.GET;

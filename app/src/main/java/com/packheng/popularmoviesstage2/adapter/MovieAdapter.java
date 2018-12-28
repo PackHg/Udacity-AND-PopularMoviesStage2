@@ -27,7 +27,7 @@ import android.view.ViewGroup;
 
 import com.packheng.popularmoviesstage2.R;
 import com.packheng.popularmoviesstage2.databinding.MovieItemBinding;
-import com.packheng.popularmoviesstage2.db.Movie;
+import com.packheng.popularmoviesstage2.data.database.Movie;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
