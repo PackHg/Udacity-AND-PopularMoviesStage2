@@ -27,7 +27,7 @@ import android.view.ViewGroup;
 
 import com.packheng.popularmoviesstage2.R;
 import com.packheng.popularmoviesstage2.databinding.MovieItemBinding;
-import com.packheng.popularmoviesstage2.db.MovieEntry;
+import com.packheng.popularmoviesstage2.db.Movie;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -39,14 +39,14 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
     private static final String LOG_TAG = MovieAdapter.class.getSimpleName();
 
     private final Context mContext;
-    private List<MovieEntry> mMovies;
+    private List<Movie> mMovies;
     final private ItemClickListener mItemClickListener;
 
     public interface ItemClickListener {
         void onItemClickListener(int movieId);
     }
 
-    public MovieAdapter(Context context, List<MovieEntry> movies, ItemClickListener listener) {
+    public MovieAdapter(Context context, List<Movie> movies, ItemClickListener listener) {
         mContext = context;
         mMovies = movies;
         mItemClickListener = listener;
@@ -83,7 +83,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
 
     @Override
     public void onBindViewHolder(@NonNull MovieViewHolder holder, int position) {
-        MovieEntry movie = mMovies.get(position);
+        Movie movie = mMovies.get(position);
         String posterUrl = movie.getPosterUrl();
         String title = movie.getTitle();
         // TODO: Check Internet connection?
@@ -104,7 +104,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         return mMovies.size();
     }
 
-    public List<MovieEntry> getMovies() {
+    public List<Movie> getMovies() {
         return mMovies;
     }
 
@@ -112,7 +112,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
      * When data changes, this method updates the list of movies
      * and notifies the adapter to use the new values on it
      */
-    public void setMovies(List<MovieEntry> mMovies) {
+    public void setMovies(List<Movie> mMovies) {
         this.mMovies = mMovies;
         notifyDataSetChanged();
     }

@@ -42,15 +42,18 @@
     <string name="pref_sort_by_default">@string/pref_sort_by_most_popular</string>
     <string name="pref_sort_by_most_popular">Most Popular Movies</string>
     <string name="pref_sort_by_top_rated">Top Rated Movies</string>
+    <string name="pref_sort_by_favorites">Favorite Movies</string>
 
     <string-array name="pref_sort_by_entries">
         <item>@string/pref_sort_by_most_popular</item>
         <item>@string/pref_sort_by_top_rated</item>
+        <item>@string/pref_sort_by_favorites</item>
     </string-array>
 
     <string-array name="pref_sort_by_values">
         <item>@string/pref_sort_by_most_popular</item>
         <item>@string/pref_sort_by_top_rated</item>
+        <item>@string/pref_sort_by_favorites</item>
     </string-array>
 
     <!-- Warning messages -->
@@ -72,7 +75,7 @@
     <!-- Favorite -->
     <string name="marked_as_favorite">Marked as a favorite</string>
     <string name="unmarked_as_favorite">Unmarked as a favorite</string>
-    <string name="no_favorites">No movies have been marked as favorite</string>
+    <string name="no_favorites">No movie has been marked as favorite</string>
 
     <!-- Example -->
     <string name="blade_runner_title">Blade Runner: Final Cut</string>

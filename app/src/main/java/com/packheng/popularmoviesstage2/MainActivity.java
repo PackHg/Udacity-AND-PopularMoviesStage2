@@ -16,12 +16,14 @@
 
 package com.packheng.popularmoviesstage2;
 
+import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -43,6 +45,8 @@ import com.packheng.popularmoviesstage2.api.TMDBTrailers;
 import com.packheng.popularmoviesstage2.adapter.MovieAdapter;
 import com.packheng.popularmoviesstage2.databinding.ActivityMainBinding;
 import com.packheng.popularmoviesstage2.db.AppDatabase;
+import com.packheng.popularmoviesstage2.db.FavoriteEntry;
+import com.packheng.popularmoviesstage2.db.Movie;
 import com.packheng.popularmoviesstage2.db.MovieEntry;
 import com.packheng.popularmoviesstage2.db.ReviewEntry;
 import com.packheng.popularmoviesstage2.db.TrailerEntry;
@@ -74,9 +78,11 @@ public class MainActivity extends AppCompatActivity
     private static final String IMAGE_SIZE = "/w185";
     private static final String EMPTY_STRING = "";
 
-    static ArrayList<MovieEntry> mMovies;
+    private ArrayList<MovieEntry> mMovies;
     private String mSortBy;
     private MovieAdapter mMovieAdapter;
+
+    private ArrayList<FavoriteEntry> mFavorites;
 
     // For binding with the components of the layout
     private ActivityMainBinding mMainBinding;
@@ -95,6 +101,9 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        Log.d(LOG_TAG, "(PACK) onCreate()");
+
         mMainBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
 
         SharedPreferences sp = getSharedPreferences(USER_DATA, 0);
@@ -108,14 +117,14 @@ public class MainActivity extends AppCompatActivity
                 getString(R.string.pref_sort_by_most_popular));
         prefs.registerOnSharedPreferenceChangeListener(this);
 
-        mMovies = new ArrayList<MovieEntry>();
+        mMovies = new ArrayList<>();
 
         mMainBinding.mainRecyclerView.setVisibility(View.VISIBLE);
         mMainBinding.mainEmptyTextView.setVisibility(View.GONE);
 
         // Set up the RecyclerView.
         mMainBinding.mainRecyclerView.setHasFixedSize(true);
-        mMovieAdapter = new MovieAdapter(this, mMovies, this);
+        mMovieAdapter = new MovieAdapter(this, new ArrayList<>(mMovies), this);
         mMainBinding.mainRecyclerView.setAdapter(mMovieAdapter);
         int numberOfColumns = calculateBestSpanCount((int) getResources()
                 .getDimension(R.dimen.main_movie_poster_width));
@@ -139,25 +148,67 @@ public class MainActivity extends AppCompatActivity
 
         mDatabase = AppDatabase.getInstance(getApplicationContext());
 
+        if (!mIsDownloaded && !mSortBy.equals(getString(R.string.pref_sort_by_favorites))) {
+            downloadData();
+        }
+
         // Setup a MainViewModel
         MainViewModelFactory factory = new MainViewModelFactory(mDatabase);
         final MainViewModel mainViewModel = ViewModelProviders.of(this, factory)
                 .get(MainViewModel.class);
-        mainViewModel.getObservableMovies().observe(this, movieEntries -> {
-            if (movieEntries != null) {
-                mMovieAdapter.setMovies(movieEntries);
+
+        mainViewModel.getObservableFavorites().observe(this, favoriteEntries -> {
+            if (favoriteEntries != null) {
+                mFavorites = (ArrayList<FavoriteEntry>) favoriteEntries;
+                if (mSortBy.equals(getString(R.string.pref_sort_by_favorites))) {
+                    updateUI();
+                }
             }
         });
 
-        if (!mIsDownloaded) {
-            downloadData();
+        mainViewModel.getObservableMovies().observe(this, movieEntries -> {
+            if (movieEntries != null) {
+                mMovies = (ArrayList<MovieEntry>) movieEntries;
+                if (mSortBy.equals(getString(R.string.pref_sort_by_most_popular)) ||
+                        mSortBy.equals(getString(R.string.pref_sort_by_top_rated))) {
+                    updateUI();
+                }
+            }
+        });
+
+//        updateUI();
+    }
+
+    private void updateUI() {
+        Log.d(LOG_TAG, "(PACK) updateUI() - mSortBy = " + mSortBy);
+
+        setActionBarTitle(mSortBy);
+
+        if (mSortBy.equals(getString(R.string.pref_sort_by_favorites))) {
+            mMainBinding.mainRecyclerView.setVisibility(View.VISIBLE);
+            mMainBinding.mainEmptyTextView.setVisibility(View.GONE);
+
+            if (mFavorites == null || mFavorites.size() == 0) {
+                Log.d(LOG_TAG, "(PACK) updateUI() - mFavorites is null or its size = 0");
+                mMainBinding.mainRecyclerView.setVisibility(View.INVISIBLE);
+                mMainBinding.mainEmptyTextView.setVisibility(View.VISIBLE);
+                mMainBinding.mainEmptyTextView.setText(getString(R.string.no_favorites));
+            } else {
+                Log.d(LOG_TAG, String.format("(PACK) updateUI() - mFavorites.size() = %d", mFavorites.size()));
+            }
+
+            mMovieAdapter.setMovies(new ArrayList<>(mFavorites));
+            return;
         }
+
+        mMovieAdapter.setMovies(new ArrayList<>(mMovies));
     }
 
     /**
      * Downloads the movies data from the TMDB API into the database.
      */
     private void downloadData() {
+        Log.d(LOG_TAG, "(PACK) downloadData()");
 
         mMainBinding.mainSwipeRefresh.setRefreshing(true);
         mMainBinding.mainRecyclerView.setVisibility(View.VISIBLE);
@@ -183,12 +234,14 @@ public class MainActivity extends AppCompatActivity
         Log.d(LOG_TAG, "(PACK) downloadMovies() - Starts loading movies from API.");
 
         Call<TMDBMovies> call;
-        if (mSortBy.equals(getString(R.string.pref_sort_by_top_rated))) {
-            setActionBarTitle(getString(R.string.pref_sort_by_top_rated));
+
+        if (mSortBy.equals(getString(R.string.pref_sort_by_most_popular))) {
+            call = mApiService.popularMovies(API_KEY_VALUE);
+        } else if (mSortBy.equals(getString(R.string.pref_sort_by_top_rated))) {
             call = mApiService.topRatedMovies(API_KEY_VALUE);
         } else {
-            setActionBarTitle(getString(R.string.pref_sort_by_most_popular));
-            call = mApiService.popularMovies(API_KEY_VALUE);
+            Log.e(LOG_TAG, "downloadMovies() - mSortBy is unknown: " + mSortBy);
+            return;
         }
 
         call.enqueue(new Callback<TMDBMovies>() {
@@ -282,12 +335,6 @@ public class MainActivity extends AppCompatActivity
                                         result.getAuthor(),
                                         result.getContent(),
                                         result.getUrl()));
-
-                                if (result.getContent().length() >= 20) {
-                                    Log.d(LOG_TAG, "(PACK) downloadReviews() - Review: " + result.getContent().substring(0, 19) + "...");
-                                } else {
-                                    Log.d(LOG_TAG, "(PACK) downloadReviews() - Review: " + result.getContent());
-                                }
                             }
 
                             AppExecutors.getInstance().diskIO().execute(() -> {
@@ -340,12 +387,12 @@ public class MainActivity extends AppCompatActivity
                                     result.getKey(),
                                     result.getSite(),
                                     result.getType()));
-                            Log.d(LOG_TAG, "(PACK) downloadTrailers() - Trailer's key: " + result.getKey());
+//                            Log.d(LOG_TAG, "(PACK) downloadTrailers() - Trailer's key: " + result.getKey());
                         }
 
                         AppExecutors.getInstance().diskIO().execute(() ->
                                 mDatabase.trailerDao().insertTrailers(trailers));
-                        Log.d(LOG_TAG, "(PACK) downloadTrailers() - Inserted trailers for the following movie: " + movie.getTitle());
+                        Log.d(LOG_TAG, "(PACK) downloadTrailers() - Inserted trailers of the following movie into database: " + movie.getTitle());
 
                     }
                 }
@@ -387,12 +434,25 @@ public class MainActivity extends AppCompatActivity
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (key.equals(getString(R.string.pref_sort_by_key))) {
             String sortByPref = sharedPreferences.getString(key, mSortBy);
+
+            Log.d(LOG_TAG, "(PACK) onSharedPreferenceChanged() - mSortBy = " + mSortBy);
+            Log.d(LOG_TAG, "(PACK) onSharedPreferenceChanged() - sortByPref = " + sortByPref);
+
+            if (sortByPref.equals(getString(R.string.pref_sort_by_favorites))) {
+                mSortBy = sortByPref;
+                updateUI();
+                return;
+            }
+
             if (!mSortBy.equals(sortByPref)) {
                 mSortBy = sortByPref;
                 downloadData();
+                // TODO: update UI after download is completed?
+                updateUI();
             }
         }
     }
+
 
     @Override
     protected void onStop() {
@@ -426,15 +486,29 @@ public class MainActivity extends AppCompatActivity
     }
 
     /**
-     * Sets the title of the action bar.
+     * Sets the title of the action bar according to the sort by.
      *
-     * @param title of the action bar.
+     * @param sortBy as chosen by the user.
      */
-    private void setActionBarTitle(String title) {
+    private void setActionBarTitle(String sortBy) {
         ActionBar actionBar = getSupportActionBar();
+        String title = "";
+
+        if (sortBy.equals(getString(R.string.pref_sort_by_most_popular))) {
+            title = getString(R.string.pref_sort_by_most_popular);
+        } else if (sortBy.equals(getString(R.string.pref_sort_by_top_rated))) {
+            title = getString(R.string.pref_sort_by_top_rated);
+        } else if (sortBy.equals(getString(R.string.pref_sort_by_favorites))) {
+            title = getString(R.string.pref_sort_by_favorites);
+        } else {
+            Log.e(LOG_TAG, "setActionBarTitle(String sortBy) - sortBy is unknown: " + sortBy);
+            return;
+        }
+
         if (actionBar != null) {
             actionBar.setTitle(title);
         }
+
     }
 
     @Override
