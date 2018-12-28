@@ -175,32 +175,35 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         });
-
-//        updateUI();
     }
 
     private void updateUI() {
         Log.d(LOG_TAG, "(PACK) updateUI() - mSortBy = " + mSortBy);
 
         setActionBarTitle(mSortBy);
+        // Update the state of the option menu item "refresh"
+        invalidateOptionsMenu();
 
         if (mSortBy.equals(getString(R.string.pref_sort_by_favorites))) {
             mMainBinding.mainRecyclerView.setVisibility(View.VISIBLE);
             mMainBinding.mainEmptyTextView.setVisibility(View.GONE);
+            mMainBinding.mainSwipeRefresh.setEnabled(false);
 
             if (mFavorites == null || mFavorites.size() == 0) {
                 Log.d(LOG_TAG, "(PACK) updateUI() - mFavorites is null or its size = 0");
-                mMainBinding.mainRecyclerView.setVisibility(View.INVISIBLE);
+                mMainBinding.mainRecyclerView.setVisibility(View.GONE);
                 mMainBinding.mainEmptyTextView.setVisibility(View.VISIBLE);
                 mMainBinding.mainEmptyTextView.setText(getString(R.string.no_favorites));
-            } else {
-                Log.d(LOG_TAG, String.format("(PACK) updateUI() - mFavorites.size() = %d", mFavorites.size()));
+                return;
             }
+
+            Log.d(LOG_TAG, String.format("(PACK) updateUI() - mFavorites.size() = %d", mFavorites.size()));
 
             mMovieAdapter.setMovies(new ArrayList<>(mFavorites));
             return;
         }
 
+        mMainBinding.mainSwipeRefresh.setEnabled(true);
         mMovieAdapter.setMovies(new ArrayList<>(mMovies));
     }
 
@@ -427,6 +430,17 @@ public class MainActivity extends AppCompatActivity
 
             default: return super.onOptionsItemSelected(item);
         }
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuItem menuItem = menu.findItem(R.id.menu_item_refresh);
+        if (mSortBy.equals(getString(R.string.pref_sort_by_favorites))) {
+            menuItem.setEnabled(false);
+        } else {
+            menuItem.setEnabled(true);
+        }
+        return true;
     }
 
     // Reloads the movies if the shared preference (sort by) changes
