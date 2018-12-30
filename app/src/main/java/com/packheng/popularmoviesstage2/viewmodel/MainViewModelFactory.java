@@ -24,7 +24,6 @@ import com.packheng.popularmoviesstage2.data.DataRepository;
 
 public class MainViewModelFactory extends ViewModelProvider.NewInstanceFactory {
 
-//    private final AppDatabase mDb;
     private final DataRepository mRepository;
 
     public MainViewModelFactory(DataRepository repository) {

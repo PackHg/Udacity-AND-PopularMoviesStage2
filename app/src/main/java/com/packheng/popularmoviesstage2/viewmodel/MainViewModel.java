@@ -33,7 +33,6 @@ import java.util.List;
 public class MainViewModel extends ViewModel {
     private static final String LOG_TAG = MainViewModel.class.getSimpleName();
 
-//    private final AppDatabase mAppDatabase;
     private final DataRepository mRepository;
 
     private final LiveData<List<MovieEntry>> mObservableMovies;
@@ -42,10 +41,8 @@ public class MainViewModel extends ViewModel {
     public MainViewModel(DataRepository repository) {
         mRepository = repository;
         Log.d(LOG_TAG, "(PACK) Actively retrieving the movies from the data repository");
-//        mObservableMovies = mAppDatabase.movieDao().loadAllObservableMovies();
         mObservableMovies = mRepository.getAllObservableMovies();
         Log.d(LOG_TAG, "(PACK) Actively retrieving the favorites from the data repository");
-//        mObservableFavorites = mAppDatabase.favoriteDao().loadAllObservableFavorites();
         mObservableFavorites = mRepository.getAllObservableFavorites();
     }
 

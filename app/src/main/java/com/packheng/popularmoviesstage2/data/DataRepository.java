@@ -48,8 +48,9 @@ import retrofit2.Response;
 import static com.packheng.popularmoviesstage2.utils.DateToStringUtils.stringToDate;
 
 /**
- * Handles data operations in this app. Acts as a mediator between the sourcing of remote
- * movies data and the {@link AppDatabase}.
+ * Handles data operations in this app.
+ * Acts as a mediator between the sourcing of remote movies data and the {@link AppDatabase}.
+ * Provides an abstraction layer for accessing the movie data.
  */
 public class DataRepository {
     private static final String LOG_TAG = DataRepository.class.getSimpleName();
@@ -327,5 +328,44 @@ public class DataRepository {
 
     public LiveData<List<FavoriteTrailerEntry>> getAllObservableFavoriteTrailersWithMovieId(int movieId) {
         return mAppDatabase.favoriteTrailerDao().loadAllObservableFavoriteTrailersWithMovieId(movieId);
+    }
+
+    public void addFavorite(FavoriteEntry favorite) {
+        if (favorite == null) {
+            return;
+        }
+        mAppExecutors.diskIO().execute(() ->
+                mAppDatabase.favoriteDao().insertFavorite(favorite));
+    }
+
+    public void addFavoriteReviews(List<FavoriteReviewEntry> favoriteReviews) {
+        if (favoriteReviews == null || favoriteReviews.size() == 0) {
+            return;
+        }
+        mAppExecutors.diskIO().execute(() ->
+                mAppDatabase.favoriteReviewDao().insertFavoriteReviews(favoriteReviews));
+    }
+
+    public void addFavoriteTrailers(List<FavoriteTrailerEntry> favoriteTrailers) {
+        if (favoriteTrailers == null || favoriteTrailers.size() == 0) {
+            return;
+        }
+        mAppExecutors.diskIO().execute(() ->
+                mAppDatabase.favoriteTrailerDao().insertFavoriteTrailers(favoriteTrailers));
+    }
+
+    public void deleteFavoriteWithMovieId(int movieId) {
+        mAppExecutors.diskIO().execute(() ->
+            mAppDatabase.favoriteDao().deleteFavoriteWithMovieId(movieId));
+    }
+
+    public void deleteAllFavoriteReviewsWithMovieId(int movieId) {
+        mAppExecutors.diskIO().execute(() ->
+                mAppDatabase.favoriteReviewDao().deleteAllFavoriteReviewsWithMovieId(movieId));
+    }
+
+     public void deleteAllFavoriteTrailersWithMovieId(int movieId) {
+        mAppExecutors.diskIO().execute(() ->
+                mAppDatabase.favoriteTrailerDao().deleteAllFavoriteTrailersWithMovieId(movieId));
     }
 }

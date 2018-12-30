@@ -37,7 +37,6 @@ import java.util.List;
 public class DetailViewModel extends ViewModel {
     private static final String LOG_TAG = DetailViewModel.class.getSimpleName();
 
-//    private final AppDatabase mAppDatabase;
     private final DataRepository mRepository;
 
     private LiveData<MovieEntry> mObservableMovie;
