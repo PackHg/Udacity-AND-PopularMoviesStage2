@@ -20,14 +20,14 @@ import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
 import android.support.annotation.NonNull;
 
-import com.packheng.popularmoviesstage2.data.database.AppDatabase;
+import com.packheng.popularmoviesstage2.data.DataRepository;
 
 public class DetailViewModelFactory extends ViewModelProvider.NewInstanceFactory {
-    private final AppDatabase mDb;
+    private final DataRepository mRepository;
     private final int mMovieId;
 
-    public DetailViewModelFactory(AppDatabase appDatabase, int movieId) {
-        mDb = appDatabase;
+    public DetailViewModelFactory(DataRepository repository, int movieId) {
+        mRepository = repository;
         mMovieId = movieId;
     }
 
@@ -35,6 +35,6 @@ public class DetailViewModelFactory extends ViewModelProvider.NewInstanceFactory
     @Override
     public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
         //noinspection unchecked
-        return (T) new DetailViewModel(mDb, mMovieId);
+        return (T) new DetailViewModel(mRepository, mMovieId);
     }
 }

@@ -30,6 +30,8 @@ import com.packheng.popularmoviesstage2.data.api.TMDBTrailer;
 import com.packheng.popularmoviesstage2.data.api.TMDBTrailers;
 import com.packheng.popularmoviesstage2.data.database.AppDatabase;
 import com.packheng.popularmoviesstage2.data.database.FavoriteEntry;
+import com.packheng.popularmoviesstage2.data.database.FavoriteReviewEntry;
+import com.packheng.popularmoviesstage2.data.database.FavoriteTrailerEntry;
 import com.packheng.popularmoviesstage2.data.database.MovieEntry;
 import com.packheng.popularmoviesstage2.data.database.ReviewEntry;
 import com.packheng.popularmoviesstage2.data.database.TrailerEntry;
@@ -301,5 +303,29 @@ public class DataRepository {
 
     public LiveData<List<FavoriteEntry>> getAllObservableFavorites() {
         return mAppDatabase.favoriteDao().loadAllObservableFavorites();
+    }
+
+    public LiveData<MovieEntry> getObservableMovieWithMovieId(int movieId) {
+        return mAppDatabase.movieDao().loadObservableMovieWithMovieId(movieId);
+    }
+
+    public LiveData<List<ReviewEntry>> getAllObservableReviewsWithMovieId(int movieId) {
+        return mAppDatabase.reviewDao().loadAllObservableReviewsWithMovieId(movieId);
+    }
+
+    public LiveData<List<TrailerEntry>> getAllObservableTrailersWithMovieId(int movieId) {
+        return mAppDatabase.trailerDao().loadAllObservableTrailersWithMovieId(movieId);
+    }
+
+    public LiveData<FavoriteEntry> getObservableFavoriteWithMovieId(int movieId) {
+        return mAppDatabase.favoriteDao().loadObservableFavoriteWithMovieId(movieId);
+    }
+
+    public LiveData<List<FavoriteReviewEntry>> getAllObservableFavoriteReviewsWithMovieId(int movieId) {
+        return mAppDatabase.favoriteReviewDao().loadAllObservableFavoriteReviewsWithMovieId(movieId);
+    }
+
+    public LiveData<List<FavoriteTrailerEntry>> getAllObservableFavoriteTrailersWithMovieId(int movieId) {
+        return mAppDatabase.favoriteTrailerDao().loadAllObservableFavoriteTrailersWithMovieId(movieId);
     }
 }

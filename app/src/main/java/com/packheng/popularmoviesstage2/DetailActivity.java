@@ -29,6 +29,7 @@ import android.widget.Toast;
 
 import com.packheng.popularmoviesstage2.adapter.ReviewAdapter;
 import com.packheng.popularmoviesstage2.adapter.TrailerAdapter;
+import com.packheng.popularmoviesstage2.data.DataRepository;
 import com.packheng.popularmoviesstage2.databinding.ActivityDetailBinding;
 import com.packheng.popularmoviesstage2.data.database.AppDatabase;
 import com.packheng.popularmoviesstage2.data.database.FavoriteEntry;
@@ -82,6 +83,8 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
     private ArrayList<FavoriteReviewEntry> mFavoriteReviews;
     private ArrayList<FavoriteTrailerEntry> mFavoriteTrailers;
 
+    private DataRepository mDataRepository;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -118,10 +121,12 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
         mDetailBinding.detailTrailerRecyclerView.setLayoutManager(
                 new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
+        mDataRepository = MainActivity.mDataRepository;
+
         /*
          * Setup a DetailViewModel
          */
-        DetailViewModelFactory factory = new DetailViewModelFactory(mDatabase, mMovieId);
+        DetailViewModelFactory factory = new DetailViewModelFactory(mDataRepository, mMovieId);
         final DetailViewModel detailViewModel = ViewModelProviders.of(this, factory)
                 .get(DetailViewModel.class);
 

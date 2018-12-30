@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity
     private SwipeRefreshLayout mSwipeRefresh;
     private TextView mEmptyTextView;
 
-    private DataRepository mDataRepository;
+    static DataRepository mDataRepository;
 
     // Tag used for saving and restoring data into and from SharedPreferences
     private static final String USER_DATA = "user data";
