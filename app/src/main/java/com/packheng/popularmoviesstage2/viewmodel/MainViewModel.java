@@ -33,16 +33,17 @@ import java.util.List;
 public class MainViewModel extends ViewModel {
     private static final String LOG_TAG = MainViewModel.class.getSimpleName();
 
-//    private final AppDatabase mDatabase;
+    private final AppDatabase mAppDatabase;
+
     private final LiveData<List<MovieEntry>> mObservableMovies;
     private final LiveData<List<FavoriteEntry>> mObservableFavorites;
 
     public MainViewModel(AppDatabase appDatabase) {
-//        mDatabase = appDatabase;
+        mAppDatabase = appDatabase;
         Log.d(LOG_TAG, "(PACK) Actively retrieving the movies from the Database");
-        mObservableMovies = appDatabase.movieDao().loadAllObservableMovies();
+        mObservableMovies = mAppDatabase.movieDao().loadAllObservableMovies();
         Log.d(LOG_TAG, "(PACK) Actively retrieving the favorites from the Database");
-        mObservableFavorites = appDatabase.favoriteDao().loadAllObservableFavorites();
+        mObservableFavorites = mAppDatabase.favoriteDao().loadAllObservableFavorites();
     }
 
     public LiveData<List<MovieEntry>> getObservableMovies() {

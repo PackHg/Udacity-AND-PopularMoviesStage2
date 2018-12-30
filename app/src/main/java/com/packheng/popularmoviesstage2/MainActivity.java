@@ -26,54 +26,40 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
-import com.packheng.popularmoviesstage2.data.api.TMDBEndpointInterface;
-import com.packheng.popularmoviesstage2.data.api.TMDBMovie;
-import com.packheng.popularmoviesstage2.data.api.TMDBMovies;
-import com.packheng.popularmoviesstage2.data.api.TMDBReview;
-import com.packheng.popularmoviesstage2.data.api.TMDBReviews;
-import com.packheng.popularmoviesstage2.data.api.TMDBTrailer;
-import com.packheng.popularmoviesstage2.data.api.TMDBTrailers;
 import com.packheng.popularmoviesstage2.adapter.MovieAdapter;
-import com.packheng.popularmoviesstage2.databinding.ActivityMainBinding;
+import com.packheng.popularmoviesstage2.data.DataRepository;
+import com.packheng.popularmoviesstage2.data.api.TMDBEndpointInterface;
 import com.packheng.popularmoviesstage2.data.database.AppDatabase;
 import com.packheng.popularmoviesstage2.data.database.FavoriteEntry;
 import com.packheng.popularmoviesstage2.data.database.MovieEntry;
-import com.packheng.popularmoviesstage2.data.database.ReviewEntry;
-import com.packheng.popularmoviesstage2.data.database.TrailerEntry;
+import com.packheng.popularmoviesstage2.databinding.ActivityMainBinding;
 import com.packheng.popularmoviesstage2.utils.AppExecutors;
 import com.packheng.popularmoviesstage2.viewmodel.MainViewModel;
 import com.packheng.popularmoviesstage2.viewmodel.MainViewModelFactory;
 
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-import static com.packheng.popularmoviesstage2.utils.DateToStringUtils.stringToDate;
 import static com.packheng.popularmoviesstage2.utils.NetworkUtils.isNetworkConnected;
 
 public class MainActivity extends AppCompatActivity
-        implements SharedPreferences.OnSharedPreferenceChangeListener, MovieAdapter.ItemClickListener {
+        implements SharedPreferences.OnSharedPreferenceChangeListener, MovieAdapter.ItemClickListener,
+        DataRepository.OnDownloadOfDataListener {
 
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
     private static final String TMDB_BASE_URL = "https://api.themoviedb.org/3/";
-    private static final String API_KEY_VALUE = BuildConfig.ApiKey;
-    private static final String BASE_URL = "https://image.tmdb.org/t/p";
-    private static final String IMAGE_SIZE = "/w185";
-    private static final String EMPTY_STRING = "";
 
     private ArrayList<MovieEntry> mMovies;
     private String mSortBy;
@@ -81,12 +67,11 @@ public class MainActivity extends AppCompatActivity
 
     private ArrayList<FavoriteEntry> mFavorites;
 
-    // For binding with the components of the layout
-    private ActivityMainBinding mMainBinding;
+    private RecyclerView mRecyclerView;
+    private SwipeRefreshLayout mSwipeRefresh;
+    private TextView mEmptyTextView;
 
-    private TMDBEndpointInterface mApiService;
-
-    private AppDatabase mDatabase;
+    private DataRepository mDataRepository;
 
     // Tag used for saving and restoring data into and from SharedPreferences
     private static final String USER_DATA = "user data";
@@ -101,7 +86,10 @@ public class MainActivity extends AppCompatActivity
 
         Log.d(LOG_TAG, "(PACK) onCreate()");
 
-        mMainBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
+        ActivityMainBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
+        mRecyclerView = binding.mainRecyclerView;
+        mSwipeRefresh = binding.mainSwipeRefresh;
+        mEmptyTextView = binding.mainEmptyTextView;
 
         SharedPreferences sp = getSharedPreferences(USER_DATA, 0);
         if (sp != null) {
@@ -116,41 +104,42 @@ public class MainActivity extends AppCompatActivity
 
         mMovies = new ArrayList<>();
 
-        mMainBinding.mainRecyclerView.setVisibility(View.VISIBLE);
-        mMainBinding.mainEmptyTextView.setVisibility(View.GONE);
+        mRecyclerView.setVisibility(View.VISIBLE);
+        mEmptyTextView.setVisibility(View.GONE);
 
         // Set up the RecyclerView.
-        mMainBinding.mainRecyclerView.setHasFixedSize(true);
+        mRecyclerView.setHasFixedSize(true);
         mMovieAdapter = new MovieAdapter(this, new ArrayList<>(mMovies), this);
-        mMainBinding.mainRecyclerView.setAdapter(mMovieAdapter);
+        mRecyclerView.setAdapter(mMovieAdapter);
         int numberOfColumns = calculateBestSpanCount((int) getResources()
                 .getDimension(R.dimen.main_movie_poster_width));
-        mMainBinding.mainRecyclerView.setLayoutManager(new GridLayoutManager(this, numberOfColumns));
+        mRecyclerView.setLayoutManager(new GridLayoutManager(this, numberOfColumns));
 
-        mMainBinding.mainSwipeRefresh.setColorSchemeResources(R.color.colorPrimary, R.color.green, R.color.yellow);
+        mSwipeRefresh.setColorSchemeResources(R.color.colorPrimary, R.color.green, R.color.yellow);
         // Set up a setOnRefreshListener to load the movies when user performs a swipe-to-refresh gesture.
-        mMainBinding.mainSwipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+        mSwipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 downloadData();
             }
         });
 
-        // Create the Retrofit instance and constructs a service leveraging TMBDEndpointInterface.
+        AppDatabase database = AppDatabase.getInstance(getApplicationContext());
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(TMDB_BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
-        mApiService = retrofit.create(TMDBEndpointInterface.class);
-
-        mDatabase = AppDatabase.getInstance(getApplicationContext());
+        TMDBEndpointInterface apiService = retrofit.create(TMDBEndpointInterface.class);
+        AppExecutors executors = AppExecutors.getInstance();
+        mDataRepository = DataRepository.getInstance(database, apiService, executors,this);
+//        mDataRepository = new DataRepository(this, database, apiService, executors, this);
 
         if (!mIsDownloaded && !mSortBy.equals(getString(R.string.pref_sort_by_favorites))) {
             downloadData();
         }
 
         // Setup a MainViewModel
-        MainViewModelFactory factory = new MainViewModelFactory(mDatabase);
+        MainViewModelFactory factory = new MainViewModelFactory(database);
         final MainViewModel mainViewModel = ViewModelProviders.of(this, factory)
                 .get(MainViewModel.class);
 
@@ -182,15 +171,15 @@ public class MainActivity extends AppCompatActivity
         invalidateOptionsMenu();
 
         if (mSortBy.equals(getString(R.string.pref_sort_by_favorites))) {
-            mMainBinding.mainRecyclerView.setVisibility(View.VISIBLE);
-            mMainBinding.mainEmptyTextView.setVisibility(View.GONE);
-            mMainBinding.mainSwipeRefresh.setEnabled(false);
+            mRecyclerView.setVisibility(View.VISIBLE);
+            mEmptyTextView.setVisibility(View.GONE);
+            mSwipeRefresh.setEnabled(false);
 
             if (mFavorites == null || mFavorites.size() == 0) {
                 Log.d(LOG_TAG, "(PACK) updateUI() - mFavorites is null or its size = 0");
-                mMainBinding.mainRecyclerView.setVisibility(View.GONE);
-                mMainBinding.mainEmptyTextView.setVisibility(View.VISIBLE);
-                mMainBinding.mainEmptyTextView.setText(getString(R.string.no_favorites));
+                mRecyclerView.setVisibility(View.GONE);
+                mEmptyTextView.setVisibility(View.VISIBLE);
+                mEmptyTextView.setText(getString(R.string.no_favorites));
                 return;
             }
 
@@ -200,7 +189,7 @@ public class MainActivity extends AppCompatActivity
             return;
         }
 
-        mMainBinding.mainSwipeRefresh.setEnabled(true);
+        mSwipeRefresh.setEnabled(true);
         mMovieAdapter.setMovies(new ArrayList<>(mMovies));
     }
 
@@ -208,201 +197,38 @@ public class MainActivity extends AppCompatActivity
      * Downloads the movies data from the TMDB API into the database.
      */
     private void downloadData() {
-        Log.d(LOG_TAG, "(PACK) downloadData()");
+        Log.d(LOG_TAG, "(PACK) Starting downloadData()");
 
-        mMainBinding.mainSwipeRefresh.setRefreshing(true);
-        mMainBinding.mainRecyclerView.setVisibility(View.VISIBLE);
+        mSwipeRefresh.setRefreshing(true);
+        mRecyclerView.setVisibility(View.VISIBLE);
+        mEmptyTextView.setVisibility(View.GONE);
 
         if (isNetworkConnected(this)) {
-            mMainBinding.mainEmptyTextView.setVisibility(View.GONE);
-
-            downloadMovies();
+            mDataRepository.downloadMovies(mSortBy);
 
         } else {
-            mMainBinding.mainSwipeRefresh.setRefreshing(false);
-            mMainBinding.mainRecyclerView.setVisibility(View.GONE);
-            mMainBinding.mainEmptyTextView.setVisibility(View.VISIBLE);
-            mMainBinding.mainEmptyTextView.setText(R.string.no_internet);
+            mSwipeRefresh.setRefreshing(false);
+            mRecyclerView.setVisibility(View.GONE);
+            mEmptyTextView.setVisibility(View.VISIBLE);
+            mEmptyTextView.setText(R.string.no_internet);
         }
     }
 
-    /**
-     * Download movies' data
-     */
-    private void downloadMovies() {
-        // Accessing the API
-        Log.d(LOG_TAG, "(PACK) downloadMovies() - Starts loading movies from API.");
-
-        Call<TMDBMovies> call;
-
-        if (mSortBy.equals(getString(R.string.pref_sort_by_most_popular))) {
-            call = mApiService.popularMovies(API_KEY_VALUE);
-        } else if (mSortBy.equals(getString(R.string.pref_sort_by_top_rated))) {
-            call = mApiService.topRatedMovies(API_KEY_VALUE);
-        } else {
-            Log.e(LOG_TAG, "downloadMovies() - mSortBy is unknown: " + mSortBy);
-            return;
-        }
-
-        call.enqueue(new Callback<TMDBMovies>() {
-
-            @Override
-            public void onResponse(Call<TMDBMovies> call, Response<TMDBMovies> response) {
-                mMainBinding.mainSwipeRefresh.setRefreshing(false);
-
-                if (response.body() != null) {
-                    AppExecutors.getInstance().diskIO().execute(new Runnable() {
-
-                        @Override
-                        public void run() {
-                            List<TMDBMovie> results = response.body().getResults();
-                            mMovies.clear();
-                            for (TMDBMovie result: results) {
-                                if (result != null) {
-                                    int movieId = result.getId();
-                                    String title = result.getOriginalTitle();
-                                    Log.d(LOG_TAG, "(PACK) downloadMovies() - movie title : " + title + ".");
-                                    String posterUrl;
-                                    if (!result.getPosterPath().isEmpty()) {
-                                        posterUrl = BASE_URL + IMAGE_SIZE + result.getPosterPath();
-                                    } else {
-                                        posterUrl = EMPTY_STRING;
-                                    }
-                                    String plotSynopsis = result.getOverview();
-                                    double userRating = result.getVoteAverage();
-                                    Date releaseDate = stringToDate(result.getReleaseDate());
-                                    MovieEntry movie = new MovieEntry(movieId, title, posterUrl, plotSynopsis,
-                                            userRating, releaseDate);
-                                    mMovies.add(movie);
-                                }
-                            }
-
-                            mDatabase.movieDao().deleteAllMovies();
-                            Log.d(LOG_TAG, "(PACK) downloadMovies() - deleted all movies in database.");
-                            mDatabase.movieDao().insertMovies(mMovies);
-                            Log.d(LOG_TAG, "(PACK) downloadMovies() - inserted downloaded movies into database.");
-                            mIsDownloaded = true;
-
-                            downloadReviews();
-                            downloadTrailers();
-                        }
-                    });
-                } else {
-                    mMainBinding.mainRecyclerView.setVisibility(View.GONE);
-                    mMainBinding.mainEmptyTextView.setVisibility(View.VISIBLE);
-                    mMainBinding.mainEmptyTextView.setText(R.string.no_movies_data_found);
-                }
-            }
-
-            @Override
-            public void onFailure(Call<TMDBMovies> call, Throwable t) {
-                mMainBinding.mainSwipeRefresh.setRefreshing(false);
-                mMainBinding.mainRecyclerView.setVisibility(View.GONE);
-                mMainBinding.mainEmptyTextView.setVisibility(View.VISIBLE);
-                mMainBinding.mainEmptyTextView.setText(R.string.issue_with_fetching_movie_data);
-            }
-        });
+    @Override
+    public void OnDownloadOfDataFinished() {
+        Log.d(LOG_TAG, "(PACK) OnDownloadOfDataFinished()");
+        mSwipeRefresh.setRefreshing(false);
+        mRecyclerView.setVisibility(View.VISIBLE);
+        mEmptyTextView.setVisibility(View.GONE);
     }
 
-    /**
-     * Download reviews' data
-     */
-    private void downloadReviews() {
-
-        // Delete all existing reviews
-        AppExecutors.getInstance().diskIO().execute(() -> {
-            mDatabase.reviewDao().deleteAllReviews();
-            Log.d(LOG_TAG, "(PACK) downloadReviews() - Deleted all reviews from database.");
-        });
-
-        // Accessing the API
-        Log.d(LOG_TAG, "(PACK) downloadReviews() - Starts loading reviews from API.");
-
-        for(MovieEntry movie: mMovies) {
-            Call<TMDBReviews> call = mApiService.reviews(movie.getMovieId(), API_KEY_VALUE);
-
-            call.enqueue(new Callback<TMDBReviews>() {
-
-                @Override
-                public void onResponse(Call<TMDBReviews> call, Response<TMDBReviews> response) {
-                    if (response.body() != null) {
-                            List<TMDBReview> results = response.body().getResults();
-                            ArrayList<ReviewEntry> reviews = new ArrayList<>();
-                            for(TMDBReview result: results) {
-                                reviews.add(new ReviewEntry(
-                                        result.getId(),
-                                        movie.getMovieId(),
-                                        result.getAuthor(),
-                                        result.getContent(),
-                                        result.getUrl()));
-                            }
-
-                            AppExecutors.getInstance().diskIO().execute(() -> {
-                                mDatabase.reviewDao().insertReviews(reviews);
-                                Log.d(LOG_TAG, "(PACK) downloadReviews() - inserted reviews of the following movie into database: " + movie.getTitle());
-                            });
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<TMDBReviews> call, Throwable t) {
-                    Log.e(LOG_TAG, "Issue with dowloading the movie's reviews");
-                }
-            });
-        }
-    }
-
-    /**
-     * Download trailers' data
-     */
-    private void downloadTrailers() {
-
-        // Delete all existing trailers
-        AppExecutors.getInstance().diskIO().execute(new Runnable() {
-            @Override
-            public void run() {
-                mDatabase.trailerDao().deleteAllTrailers();
-                Log.d(LOG_TAG, "(PACK) downloadTrailers() - Deleted all trailers from database.");
-            }
-        });
-
-        // Accessing the API
-        Log.d(LOG_TAG, "(PACK) downloadTrailers() - Starts loading trailers from API.");
-
-        for(MovieEntry movie: mMovies) {
-            Call<TMDBTrailers> call = mApiService.trailers(movie.getMovieId(), API_KEY_VALUE);
-
-            call.enqueue(new Callback<TMDBTrailers>() {
-
-                @Override
-                public void onResponse(Call<TMDBTrailers> call, Response<TMDBTrailers> response) {
-                    if (response.body() != null) {
-                        List<TMDBTrailer> results = response.body().getResults();
-                        ArrayList<TrailerEntry> trailers = new ArrayList<>();
-
-                        for(TMDBTrailer result: results) {
-                            trailers.add(new TrailerEntry(
-                                    result.getId(),
-                                    movie.getMovieId(),
-                                    result.getKey(),
-                                    result.getSite(),
-                                    result.getType()));
-//                            Log.d(LOG_TAG, "(PACK) downloadTrailers() - Trailer's key: " + result.getKey());
-                        }
-
-                        AppExecutors.getInstance().diskIO().execute(() ->
-                                mDatabase.trailerDao().insertTrailers(trailers));
-                        Log.d(LOG_TAG, "(PACK) downloadTrailers() - Inserted trailers of the following movie into database: " + movie.getTitle());
-
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<TMDBTrailers> call, Throwable t) {
-                    Log.e(LOG_TAG, "Issue with dowloading the movie's tailers");
-                }
-            });
-        }
+    @Override
+    public void OnDownLoadOfDataFailed() {
+        Log.d(LOG_TAG, "(PACK) Starting OnDownLoadOfDataFailed()");
+        mSwipeRefresh.setRefreshing(false);
+        mRecyclerView.setVisibility(View.GONE);
+        mEmptyTextView.setVisibility(View.VISIBLE);
+        mEmptyTextView.setText(R.string.issue_with_fetching_movie_data);
     }
 
     @Override
@@ -458,8 +284,9 @@ public class MainActivity extends AppCompatActivity
             if (!mSortBy.equals(sortByPref)) {
                 mSortBy = sortByPref;
                 downloadData();
-                // TODO: update UI after download is completed?
                 updateUI();
+
+                // TODO: if it's as per the previous sort-by download then don't downloadData()
             }
         }
     }
@@ -512,7 +339,7 @@ public class MainActivity extends AppCompatActivity
         } else if (sortBy.equals(getString(R.string.pref_sort_by_favorites))) {
             title = getString(R.string.pref_sort_by_favorites);
         } else {
-            Log.e(LOG_TAG, "setActionBarTitle(String sortBy) - sortBy is unknown: " + sortBy);
+            Log.w(LOG_TAG, "setActionBarTitle(String sortBy) - sortBy is unknown: " + sortBy);
             return;
         }
 

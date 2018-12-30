@@ -57,7 +57,7 @@
     </string-array>
 
     <!-- Warning messages -->
-    <string name="no_internet">No Internet.\n Please check network connectivity.</string>
+    <string name="no_internet">You are offline.\n Please check network connectivity.</string>
     <string name="no_movies_data_found">No movies data found when downloading.</string>
     <string name="issue_with_fetching_movie_data">Oops! There\'s an issue with downloading movies data.</string>
     <string name="no_poster_found">No poster found</string>
