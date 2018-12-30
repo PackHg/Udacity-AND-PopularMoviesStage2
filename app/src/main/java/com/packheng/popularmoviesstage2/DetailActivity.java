@@ -132,7 +132,6 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
                 mIsFavorite = true;
                 setStarCheckboxChecked(true);
                 mFavorite = favoriteEntry;
-                // TODO: if the movie has been a favorite then update the UI with data from the favorites database.
 
                 bindDataToUI(mFavorite);
 

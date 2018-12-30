@@ -139,11 +139,11 @@ public class MainActivity extends AppCompatActivity
         }
 
         // Setup a MainViewModel
-        MainViewModelFactory factory = new MainViewModelFactory(database);
+        MainViewModelFactory factory = new MainViewModelFactory(mDataRepository);
         final MainViewModel mainViewModel = ViewModelProviders.of(this, factory)
                 .get(MainViewModel.class);
 
-        mainViewModel.getObservableFavorites().observe(this, favoriteEntries -> {
+        mainViewModel.getAllObservableFavorites().observe(this, favoriteEntries -> {
             if (favoriteEntries != null) {
                 mFavorites = (ArrayList<FavoriteEntry>) favoriteEntries;
                 if (mSortBy.equals(getString(R.string.pref_sort_by_favorites))) {
@@ -152,7 +152,7 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        mainViewModel.getObservableMovies().observe(this, movieEntries -> {
+        mainViewModel.getAllObservableMovies().observe(this, movieEntries -> {
             if (movieEntries != null) {
                 mMovies = (ArrayList<MovieEntry>) movieEntries;
                 if (mSortBy.equals(getString(R.string.pref_sort_by_most_popular)) ||

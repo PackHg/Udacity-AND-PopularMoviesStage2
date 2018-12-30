@@ -21,7 +21,7 @@ import android.arch.lifecycle.ViewModel;
 import android.util.Log;
 
 import com.packheng.popularmoviesstage2.MainActivity;
-import com.packheng.popularmoviesstage2.data.database.AppDatabase;
+import com.packheng.popularmoviesstage2.data.DataRepository;
 import com.packheng.popularmoviesstage2.data.database.FavoriteEntry;
 import com.packheng.popularmoviesstage2.data.database.MovieEntry;
 
@@ -33,24 +33,27 @@ import java.util.List;
 public class MainViewModel extends ViewModel {
     private static final String LOG_TAG = MainViewModel.class.getSimpleName();
 
-    private final AppDatabase mAppDatabase;
+//    private final AppDatabase mAppDatabase;
+    private final DataRepository mRepository;
 
     private final LiveData<List<MovieEntry>> mObservableMovies;
     private final LiveData<List<FavoriteEntry>> mObservableFavorites;
 
-    public MainViewModel(AppDatabase appDatabase) {
-        mAppDatabase = appDatabase;
-        Log.d(LOG_TAG, "(PACK) Actively retrieving the movies from the Database");
-        mObservableMovies = mAppDatabase.movieDao().loadAllObservableMovies();
-        Log.d(LOG_TAG, "(PACK) Actively retrieving the favorites from the Database");
-        mObservableFavorites = mAppDatabase.favoriteDao().loadAllObservableFavorites();
+    public MainViewModel(DataRepository repository) {
+        mRepository = repository;
+        Log.d(LOG_TAG, "(PACK) Actively retrieving the movies from the data repository");
+//        mObservableMovies = mAppDatabase.movieDao().loadAllObservableMovies();
+        mObservableMovies = mRepository.getAllObservableMovies();
+        Log.d(LOG_TAG, "(PACK) Actively retrieving the favorites from the data repository");
+//        mObservableFavorites = mAppDatabase.favoriteDao().loadAllObservableFavorites();
+        mObservableFavorites = mRepository.getAllObservableFavorites();
     }
 
-    public LiveData<List<MovieEntry>> getObservableMovies() {
+    public LiveData<List<MovieEntry>> getAllObservableMovies() {
         return mObservableMovies;
     }
 
-    public LiveData<List<FavoriteEntry>> getObservableFavorites() {
+    public LiveData<List<FavoriteEntry>> getAllObservableFavorites() {
         return mObservableFavorites;
     }
 }

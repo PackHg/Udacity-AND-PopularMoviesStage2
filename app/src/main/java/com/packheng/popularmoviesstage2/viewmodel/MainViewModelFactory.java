@@ -20,20 +20,21 @@ import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
 import android.support.annotation.NonNull;
 
-import com.packheng.popularmoviesstage2.data.database.AppDatabase;
+import com.packheng.popularmoviesstage2.data.DataRepository;
 
 public class MainViewModelFactory extends ViewModelProvider.NewInstanceFactory {
 
-    private final AppDatabase mDb;
+//    private final AppDatabase mDb;
+    private final DataRepository mRepository;
 
-    public MainViewModelFactory(AppDatabase appDatabase) {
-        this.mDb = appDatabase;
+    public MainViewModelFactory(DataRepository repository) {
+        this.mRepository = repository;
     }
 
     @NonNull
     @Override
     public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
         //noinspection unchecked
-        return (T) new MainViewModel(mDb);
+        return (T) new MainViewModel(mRepository);
     }
 }

@@ -16,6 +16,7 @@
 
 package com.packheng.popularmoviesstage2.data;
 
+import android.arch.lifecycle.LiveData;
 import android.util.Log;
 
 import com.packheng.popularmoviesstage2.BuildConfig;
@@ -28,6 +29,7 @@ import com.packheng.popularmoviesstage2.data.api.TMDBReviews;
 import com.packheng.popularmoviesstage2.data.api.TMDBTrailer;
 import com.packheng.popularmoviesstage2.data.api.TMDBTrailers;
 import com.packheng.popularmoviesstage2.data.database.AppDatabase;
+import com.packheng.popularmoviesstage2.data.database.FavoriteEntry;
 import com.packheng.popularmoviesstage2.data.database.MovieEntry;
 import com.packheng.popularmoviesstage2.data.database.ReviewEntry;
 import com.packheng.popularmoviesstage2.data.database.TrailerEntry;
@@ -291,5 +293,13 @@ public class DataRepository {
 
         mIsDownloadOfTrailersFinished = true;
         checkAllDownloadsAreFinished();
+    }
+
+    public LiveData<List<MovieEntry>> getAllObservableMovies() {
+        return mAppDatabase.movieDao().loadAllObservableMovies();
+    }
+
+    public LiveData<List<FavoriteEntry>> getAllObservableFavorites() {
+        return mAppDatabase.favoriteDao().loadAllObservableFavorites();
     }
 }
