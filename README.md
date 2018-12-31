@@ -1,19 +1,26 @@
-# Popular Movies (Stage 1)  Project
-2nd project of the Udacity [Android Developer Nanodegree](https://www.udacity.com/course/android-developer-nanodegree-by-google--nd801).
+# Popular Movies (Stage 2)  Project
+3rd project of the Udacity Android Developer Nanodegree.
 
 ## Project Overview
-The **Popular Movies (Stage 1)** app shows a grid view of popular movies.
+The **Popular Movies (Stage 2)** app shows a grid view of either most popular, top rated of favorite movies.
 
 The user can
-* get details of a movie by clicking on its poster;
-* refresh the grid view by swiping or selecting "Refresh" in the Options menu;
-* change the sort type to either Top Rated Movies or Most Popular Movies in the Settings.
+* see the details of a movie by clicking on its poster;
+* refresh the movies data by swiping down or selecting "Refresh" in the options menu when the main view shows either most popular or top rated movies;
+* change the sort type to either Most Popular Movies, Top Rated Movies or Favorite Movies in the settings.
 
-<img src="https://raw.githubusercontent.com/PackHg/Udacity-AND-PopularMoviesStage1/master/screencopies/screen00.png" width="300"> <img src="https://raw.githubusercontent.com/PackHg/Udacity-AND-PopularMoviesStage1/master/screencopies/screen01.png" width="300">
-<img src="https://raw.githubusercontent.com/PackHg/Udacity-AND-PopularMoviesStage1/master/screencopies/screen02.png" width="300"> <img src="https://raw.githubusercontent.com/PackHg/Udacity-AND-PopularMoviesStage1/master/screencopies/screen03.png" width="300">
-<img src="https://raw.githubusercontent.com/PackHg/Udacity-AND-PopularMoviesStage1/master/screencopies/screen04.png" width="300">
-<img src="https://raw.githubusercontent.com/PackHg/Udacity-AND-PopularMoviesStage1/master/screencopies/screen05land.png" width="600">
-<img src="https://raw.githubusercontent.com/PackHg/Udacity-AND-PopularMoviesStage1/master/screencopies/screen06land.png" width="600">
+In the detailed view of a selected movie, the user can:
+* favorite or unfavorite a movie;
+* also see the movie's trailers and reviews if they exist;
+* launch a trailer's Youtube video when clicking on this trailer's thumbnail;
+* share the movie's title and its first trailer's Youtube URL.
+
+<img src="https://raw.githubusercontent.com/PackHg/Udacity-AND-PopularMoviesStage2/master/screencopies/screen00.png" width="300"> <img src="https://raw.githubusercontent.com/PackHg/Udacity-AND-PopularMoviesStage2/master/screencopies/screen01.png" width="300">
+<img src="https://raw.githubusercontent.com/PackHg/Udacity-AND-PopularMoviesStage2/master/screencopies/screen02.png" width="300"> <img src="https://raw.githubusercontent.com/PackHg/Udacity-AND-PopularMoviesStage2/master/screencopies/screen03.png" width="300">
+<img src="https://raw.githubusercontent.com/PackHg/Udacity-AND-PopularMoviesStage2/master/screencopies/screen04.png" width="300">
+<img src="https://raw.githubusercontent.com/PackHg/Udacity-AND-PopularMoviesStage2/master/screencopies/screen05land.png" width="600">
+<img src="https://raw.githubusercontent.com/PackHg/Udacity-AND-PopularMoviesStage2/master/screencopies/screen06.png" width="300">
+<img src="https://raw.githubusercontent.com/PackHg/Udacity-AND-PopularMoviesStage2/master/screencopies/screen07land.png" width="600">
 
 This app is for learning purpose.
 It uses the database of [The Movie DB](https://www.themoviedb.org), it is not condoned by The Movie DB.
@@ -22,13 +29,14 @@ It uses the database of [The Movie DB](https://www.themoviedb.org), it is not co
 The API Key can be requested at [The Movie DB](https://www.themoviedb.org/account/signup).
 
 It should be defined as the following:
+
   MyTheMovieDbOrg_ApiKey="Your api key"
+
 in gradle.properties file in your home directory under .gradle directory.
 Please refer to [Hiding API keys from your Android repository](https://medium.com/code-better/hiding-api-keys-from-your-android-repository-b23f5598b906) for the instructions.
 
 ## Third party libraries used
 * [Picasso](https://square.github.io/picasso/)
-* [ButterKnife](https://jakewharton.github.io/butterknife/)
 * [Retrofit](https://square.github.io/retrofit/)
 
 ## License

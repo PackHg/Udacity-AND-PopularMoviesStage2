@@ -77,7 +77,9 @@ public class MainActivity extends AppCompatActivity
     // For tracking whether the movies have been downloaded once.
     private boolean mIsDownloaded = false;
     private String mSortBy;
-    // For remembering what the sort by used for the last download is
+    // Key used for saving and restoring the mLastDownloadIsBy String into and from SharedPreferences
+    private static final String KEY_LAST_DOWNLOAD_IS_BY = "key lastDownloadIsBy";
+    // For remembering what the sort-by used for the last download is
     private String mLastDownloadIsBy = "";
 
     @Override
@@ -94,13 +96,19 @@ public class MainActivity extends AppCompatActivity
         SharedPreferences sp = getSharedPreferences(USER_DATA, 0);
         if (sp != null) {
             mIsDownloaded = sp.getBoolean(KEY_IS_DOWNLOADED, mIsDownloaded);
+            mLastDownloadIsBy = sp.getString(KEY_LAST_DOWNLOAD_IS_BY, mLastDownloadIsBy);
         }
+
+        Log.d(LOG_TAG, "(PACK) onCreate() - mIsDownloaded = " + mIsDownloaded);
+        Log.d(LOG_TAG, "(PACK) onCreate() - mLastDownloadIsBy = " + mLastDownloadIsBy);
 
         // Get the sort by type from SharedPreferences and register the listener
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         mSortBy = prefs.getString(getString(R.string.pref_sort_by_key),
                 getString(R.string.pref_sort_by_most_popular));
         prefs.registerOnSharedPreferenceChangeListener(this);
+
+        Log.d(LOG_TAG, "(PACK) onCreate() - mSortBy = " + mSortBy);
 
         mMovies = new ArrayList<>();
 
@@ -132,9 +140,9 @@ public class MainActivity extends AppCompatActivity
         TMDBEndpointInterface apiService = retrofit.create(TMDBEndpointInterface.class);
         AppExecutors executors = AppExecutors.getInstance();
         mDataRepository = DataRepository.getInstance(database, apiService, executors,this);
-//        mDataRepository = new DataRepository(this, database, apiService, executors, this);
 
         if (!mIsDownloaded && !mSortBy.equals(getString(R.string.pref_sort_by_favorites))) {
+            Log.d(LOG_TAG, "(PACK) onCreate() - calling downloadData()");
             downloadData();
         }
 
@@ -207,6 +215,8 @@ public class MainActivity extends AppCompatActivity
         mEmptyTextView.setVisibility(View.GONE);
 
         if (isNetworkConnected(this)) {
+            mIsDownloaded = true;
+            mLastDownloadIsBy = mSortBy;
             mDataRepository.downloadMovies(mSortBy);
 
         } else {
@@ -224,7 +234,8 @@ public class MainActivity extends AppCompatActivity
         mRecyclerView.setVisibility(View.VISIBLE);
         mEmptyTextView.setVisibility(View.GONE);
 
-        mLastDownloadIsBy = mSortBy;
+//        mIsDownloaded = true;
+//        mLastDownloadIsBy = mSortBy;
     }
 
     @Override
@@ -279,6 +290,7 @@ public class MainActivity extends AppCompatActivity
 
             Log.d(LOG_TAG, "(PACK) onSharedPreferenceChanged() - mSortBy = " + mSortBy);
             Log.d(LOG_TAG, "(PACK) onSharedPreferenceChanged() - sortByPref = " + sortByPref);
+            Log.d(LOG_TAG, "(PACK) onSharedPreferenceChanged() - mLastDownloadIsBy = " + mLastDownloadIsBy);
 
             if (sortByPref.equals(getString(R.string.pref_sort_by_favorites)) || sortByPref.equals(mLastDownloadIsBy)) {
                 mSortBy = sortByPref;
@@ -290,7 +302,11 @@ public class MainActivity extends AppCompatActivity
                 mSortBy = sortByPref;
                 downloadData();
                 updateUI();
+                return;
             }
+
+            mSortBy = sortByPref;
+            updateUI();
         }
     }
 
@@ -301,6 +317,7 @@ public class MainActivity extends AppCompatActivity
         SharedPreferences sp = getSharedPreferences(USER_DATA, 0);
         SharedPreferences.Editor editor = sp.edit();
         editor.putBoolean(KEY_IS_DOWNLOADED, mIsDownloaded);
+        editor.putString(KEY_LAST_DOWNLOAD_IS_BY, mLastDownloadIsBy);
         editor.apply();
     }
 
