@@ -41,4 +41,13 @@
         <item name="android:textAppearance">?android:textAppearanceMedium</item>
     </style>
 
+    <style name="ShareImageButtonStyle">
+        <item name="android:contentDescription">@string/share_first_trailer</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginLeft">@dimen/default_margin</item>
+        <item name="android:layout_marginStart">@dimen/default_margin</item>
+        <item name="android:layout_marginTop">@dimen/default_margin</item>
+    </style>
+
 </resources>

@@ -189,7 +189,10 @@ public class MainActivity extends AppCompatActivity
             return;
         }
 
+        mRecyclerView.setVisibility(View.VISIBLE);
+        mEmptyTextView.setVisibility(View.GONE);
         mSwipeRefresh.setEnabled(true);
+        mSwipeRefresh.setRefreshing(false);
         mMovieAdapter.setMovies(new ArrayList<>(mMovies));
     }
 
@@ -277,7 +280,6 @@ public class MainActivity extends AppCompatActivity
             Log.d(LOG_TAG, "(PACK) onSharedPreferenceChanged() - mSortBy = " + mSortBy);
             Log.d(LOG_TAG, "(PACK) onSharedPreferenceChanged() - sortByPref = " + sortByPref);
 
-            // TODO: if it's as per the previous sort-by download then don't downloadData()
             if (sortByPref.equals(getString(R.string.pref_sort_by_favorites)) || sortByPref.equals(mLastDownloadIsBy)) {
                 mSortBy = sortByPref;
                 updateUI();

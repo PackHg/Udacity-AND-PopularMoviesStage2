@@ -27,6 +27,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -74,11 +75,15 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
     private ArrayList<ReviewEntry> mReviews;
     private ArrayList<TrailerEntry> mTrailers;
 
+    private ActivityDetailBinding mDetailBinding;
     private TextView mPosterEmptyTextView, mTitleTextView, mUserRatingTextView,
             mReleaseDateTextView, mPlotSynopsisTextView, mNumberOfReviews, mNumberOfTrailers;
     private ImageView mPosterImageView;
     private CheckBox mFavoriteCheckbox;
+    private ImageButton mShareButton;
 
+    private RecyclerView mReviewRecyclerView;
+    private RecyclerView mTrailerRecyclerView;
     private ReviewAdapter mReviewAdapter;
     private TrailerAdapter mTrailerAdapter;
 
@@ -93,18 +98,7 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        ActivityDetailBinding detailBinding = DataBindingUtil.setContentView(this, R.layout.activity_detail);
-        mPosterEmptyTextView = detailBinding.detailPosterEmptyTextView;
-        mTitleTextView = detailBinding.detailTitleTextView;
-        mUserRatingTextView = detailBinding.detailUserRatingTextView;
-        mReleaseDateTextView = detailBinding.detailReleaseDateTextView;
-        mPlotSynopsisTextView = detailBinding.detailPlotSynopsisTextView;
-        mNumberOfReviews = detailBinding.detailNumberOfReviews;
-        mNumberOfTrailers = detailBinding.detailNumberOfTrailers;
-        mPosterImageView = detailBinding.detailPosterImageView;
-        mFavoriteCheckbox = detailBinding.detailFavoriteCheckbox;
-        RecyclerView reviewRecyclerView = detailBinding.detailReviewRecyclerView;
-        RecyclerView trailerRecyclerView = detailBinding.detailTrailerRecyclerView;
+        bindDataWithTheMainLayout();
 
         if (savedInstanceState != null && savedInstanceState.containsKey(INSTANCE_MOVIE_ID)) {
             mMovieId = savedInstanceState.getInt(INSTANCE_MOVIE_ID, DEFAULT_MOVIE_ID);
@@ -121,18 +115,18 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
          * Set up the RecyclerView for the movie's reviews
          */
         mReviewAdapter = new ReviewAdapter(this, new ArrayList<Review>());
-        reviewRecyclerView.setAdapter(mReviewAdapter);
-        reviewRecyclerView.setLayoutManager(
+        mReviewRecyclerView.setAdapter(mReviewAdapter);
+        mReviewRecyclerView.setLayoutManager(
                 new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-        reviewRecyclerView.addItemDecoration(
+        mReviewRecyclerView.addItemDecoration(
                 new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
 
         /*
          * Set up the RecyclerView for the movie's trailers
          */
         mTrailerAdapter = new TrailerAdapter(this, new ArrayList<Trailer>(), this);
-        trailerRecyclerView.setAdapter(mTrailerAdapter);
-        trailerRecyclerView.setLayoutManager(
+        mTrailerRecyclerView.setAdapter(mTrailerAdapter);
+        mTrailerRecyclerView.setLayoutManager(
                 new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
         mDataRepository = MainActivity.mDataRepository;
@@ -208,7 +202,7 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
             });
         });
 
-        // Observe the star checkbox state
+        // Observe the star checkbox
         mFavoriteCheckbox.setOnClickListener(v -> {
             mIsFavorite = mFavoriteCheckbox.isChecked();
             if (mIsFavorite) {
@@ -247,6 +241,56 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
                 }
             }
         });
+
+        // Share the movie's title and first trailer's Youtube URL when click on the share button
+        mShareButton.setOnClickListener(v -> {
+            Toast.makeText(DetailActivity.this, "Share", Toast.LENGTH_SHORT).show();
+
+            String message = "";
+            String title = "";
+            String trailerYoutubeUrl = "";
+
+            if (mFavorite == null) {
+                title = mMovie.getTitle();
+                if (mTrailers != null && mTrailers.size() > 0) {
+                    trailerYoutubeUrl = "http://www.youtube.com/watch?v="
+                            + mTrailers.get(1).getYoutubeKey();
+                }
+            } else {
+                title = mFavorite.getTitle();
+                if (mFavoriteTrailers != null && mFavoriteTrailers.size() > 0) {
+                    trailerYoutubeUrl = "http://www.youtube.com/watch?v=" +
+                            mFavoriteTrailers.get(1).getYoutubeKey();
+                }
+            }
+
+            message = title + "\n" + trailerYoutubeUrl + "\n";
+
+            Intent sendIntent = new Intent();
+            sendIntent.setAction(Intent.ACTION_SEND);
+            sendIntent.putExtra(Intent.EXTRA_TEXT, message);
+            sendIntent.setType("text/plain");
+            startActivity(Intent.createChooser(sendIntent, title));
+        });
+    }
+
+    /**
+     * Bind some of the data members with the components of the main layout
+     */
+    private void bindDataWithTheMainLayout() {
+        mDetailBinding = DataBindingUtil.setContentView(this, R.layout.activity_detail);
+        mPosterEmptyTextView = mDetailBinding.detailPosterEmptyTextView;
+        mTitleTextView = mDetailBinding.detailTitleTextView;
+        mUserRatingTextView = mDetailBinding.detailUserRatingTextView;
+        mReleaseDateTextView = mDetailBinding.detailReleaseDateTextView;
+        mPlotSynopsisTextView = mDetailBinding.detailPlotSynopsisTextView;
+        mNumberOfReviews = mDetailBinding.detailNumberOfReviews;
+        mNumberOfTrailers = mDetailBinding.detailNumberOfTrailers;
+        mPosterImageView = mDetailBinding.detailPosterImageView;
+        mFavoriteCheckbox = mDetailBinding.detailFavoriteCheckbox;
+        mShareButton = mDetailBinding.detailShareButton;
+        mReviewRecyclerView = mDetailBinding.detailReviewRecyclerView;
+        mTrailerRecyclerView = mDetailBinding.detailTrailerRecyclerView;
     }
 
     @Override

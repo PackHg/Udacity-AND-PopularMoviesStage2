@@ -77,6 +77,8 @@
     <string name="unmarked_as_favorite">Unmarked as a favorite</string>
     <string name="no_favorites">No movie has been marked as favorite</string>
 
+    <string name="share_first_trailer">Share the first trailer’s YouTube URL if it exist</string>
+
     <!-- Example -->
     <string name="blade_runner_title">Blade Runner: Final Cut</string>
     <string name="blade_runner_release_date">2007&#8211;10&#8211;01</string>
