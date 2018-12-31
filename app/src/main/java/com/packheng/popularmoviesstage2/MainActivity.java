@@ -56,16 +56,13 @@ import static com.packheng.popularmoviesstage2.utils.NetworkUtils.isNetworkConne
 public class MainActivity extends AppCompatActivity
         implements SharedPreferences.OnSharedPreferenceChangeListener, MovieAdapter.ItemClickListener,
         DataRepository.OnDownloadOfDataListener {
-
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
     private static final String TMDB_BASE_URL = "https://api.themoviedb.org/3/";
 
     private ArrayList<MovieEntry> mMovies;
-    private String mSortBy;
-    private MovieAdapter mMovieAdapter;
-
     private ArrayList<FavoriteEntry> mFavorites;
+    private MovieAdapter mMovieAdapter;
 
     private RecyclerView mRecyclerView;
     private SwipeRefreshLayout mSwipeRefresh;
@@ -77,8 +74,11 @@ public class MainActivity extends AppCompatActivity
     private static final String USER_DATA = "user data";
     // Key used for saving and restoring the mIsDownloaded boolean into and from SharedPreferences
     private static final String KEY_IS_DOWNLOADED = "key is downloaded";
-    // For tracking whether the movies have already been downloaded.
+    // For tracking whether the movies have been downloaded once.
     private boolean mIsDownloaded = false;
+    private String mSortBy;
+    // For remembering what the sort by used for the last download is
+    private String mLastDownloadIsBy = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,7 +115,7 @@ public class MainActivity extends AppCompatActivity
                 .getDimension(R.dimen.main_movie_poster_width));
         mRecyclerView.setLayoutManager(new GridLayoutManager(this, numberOfColumns));
 
-        mSwipeRefresh.setColorSchemeResources(R.color.colorPrimary, R.color.green, R.color.yellow);
+        mSwipeRefresh.setColorSchemeResources(R.color.colorPrimary, R.color.colorGreen, R.color.colorYellow);
         // Set up a setOnRefreshListener to load the movies when user performs a swipe-to-refresh gesture.
         mSwipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -220,6 +220,8 @@ public class MainActivity extends AppCompatActivity
         mSwipeRefresh.setRefreshing(false);
         mRecyclerView.setVisibility(View.VISIBLE);
         mEmptyTextView.setVisibility(View.GONE);
+
+        mLastDownloadIsBy = mSortBy;
     }
 
     @Override
@@ -275,7 +277,8 @@ public class MainActivity extends AppCompatActivity
             Log.d(LOG_TAG, "(PACK) onSharedPreferenceChanged() - mSortBy = " + mSortBy);
             Log.d(LOG_TAG, "(PACK) onSharedPreferenceChanged() - sortByPref = " + sortByPref);
 
-            if (sortByPref.equals(getString(R.string.pref_sort_by_favorites))) {
+            // TODO: if it's as per the previous sort-by download then don't downloadData()
+            if (sortByPref.equals(getString(R.string.pref_sort_by_favorites)) || sortByPref.equals(mLastDownloadIsBy)) {
                 mSortBy = sortByPref;
                 updateUI();
                 return;
@@ -285,8 +288,6 @@ public class MainActivity extends AppCompatActivity
                 mSortBy = sortByPref;
                 downloadData();
                 updateUI();
-
-                // TODO: if it's as per the previous sort-by download then don't downloadData()
             }
         }
     }

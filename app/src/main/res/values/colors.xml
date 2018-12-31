@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">@color/deepOrange600</color>
-    <color name="colorPrimaryDark">@color/deepOrange900</color>
-    <color name="colorAccent">@color/deepOrange300</color>
+    <color name="colorPrimary">@color/colorDeepOrange600</color>
+    <color name="colorPrimaryDark">@color/colorDeepOrange900</color>
+    <color name="colorAccent">@color/colorDeepOrange300</color>
 
-    <color name="deepOrange300">#FF8A65</color>
-    <color name="deepOrange600">#F4511E</color>
-    <color name="deepOrange900">#BF360C</color>
-    <color name="white">#FFFFFF</color>
-    <color name="yellow">#FFd600</color>
-    <color name="green">#00c853</color>
+    <color name="colorDeepOrange300">#FF8A65</color>
+    <color name="colorDeepOrange600">#F4511E</color>
+    <color name="colorDeepOrange900">#BF360C</color>
+    <color name="colorWhite">#FFFFFF</color>
+    <color name="colorYellow">#FFd600</color>
+    <color name="colorGreen">#00c853</color>
 </resources>
