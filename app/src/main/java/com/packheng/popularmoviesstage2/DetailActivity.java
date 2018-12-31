@@ -58,7 +58,7 @@ import static com.packheng.popularmoviesstage2.utils.NetworkUtils.isNetworkConne
 import static com.packheng.popularmoviesstage2.utils.Utils.launchYoutubeVideo;
 
 /**
- * Shows the details of a movie.
+ * Shows the details of a movie selected in the main view.
  */
 public class DetailActivity extends AppCompatActivity implements TrailerAdapter.ItemClickListener{
 
