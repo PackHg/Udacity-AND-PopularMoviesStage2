@@ -31,7 +31,7 @@
             android:layout_height="@dimen/detail_trailer_thumbnail_height"
             android:contentDescription="@string/trailer_thumbnail"
             android:scaleType="centerCrop"
-            tools:src="@mipmap/ic_launcher" />
+            tools:src="@mipmap/ic_movie_launcher" />
 
         <TextView
             android:id="@+id/detail_trailer_empty_view"

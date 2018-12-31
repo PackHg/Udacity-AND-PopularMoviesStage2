@@ -50,7 +50,7 @@
                 android:scaleType="centerCrop"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/detail_title_text_view"
-                tools:src="@mipmap/ic_launcher" />
+                tools:src="@mipmap/ic_movie_launcher" />
 
             <TextView
                 android:id="@+id/detail_poster_empty_text_view"
