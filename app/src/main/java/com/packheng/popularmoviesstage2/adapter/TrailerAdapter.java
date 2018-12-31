@@ -26,12 +26,11 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.packheng.popularmoviesstage2.R;
-import com.packheng.popularmoviesstage2.databinding.TrailerItemBinding;
 import com.packheng.popularmoviesstage2.data.database.Trailer;
+import com.packheng.popularmoviesstage2.databinding.TrailerItemBinding;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
-import java.util.Locale;
 
 import static com.packheng.popularmoviesstage2.utils.NetworkUtils.isNetworkConnected;
 
@@ -92,15 +91,9 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerV
         Trailer trailer = mTrailers.get(position);
 
         if(!isNetworkConnected(mContext)) {
-            holder.binding.detailTrailerThumbnail.setVisibility(View.GONE);
-            holder.binding.detailTrailerEmptyView.setVisibility(View.VISIBLE);
-
-            holder.binding.detailTrailerEmptyView.setText(
-                    String.format(Locale.getDefault() ,"%s %d", R.string.trailer, position));
+            Picasso.with(mContext).load(R.drawable.ic_cloud_off)
+                    .into(holder.binding.detailTrailerThumbnail);
         } else {
-            holder.binding.detailTrailerThumbnail.setVisibility(View.VISIBLE);
-            holder.binding.detailTrailerEmptyView.setVisibility(View.GONE);
-
             String youtubeKey = trailer.getYoutubeKey();
             Picasso.with(mContext).load(BASE + youtubeKey + SIZE)
                     .into(holder.binding.detailTrailerThumbnail);

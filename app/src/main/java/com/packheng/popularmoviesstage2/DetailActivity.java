@@ -53,6 +53,7 @@ import java.util.Date;
 import java.util.Locale;
 
 import static com.packheng.popularmoviesstage2.utils.DateToStringUtils.formatDateToString;
+import static com.packheng.popularmoviesstage2.utils.NetworkUtils.isNetworkConnected;
 import static com.packheng.popularmoviesstage2.utils.Utils.launchYoutubeVideo;
 
 /**
@@ -298,6 +299,11 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
 
     @Override
     public void onItemClickListener(String youtubeKey) {
+        if (!isNetworkConnected(this)) {
+            Toast.makeText(this, R.string.no_internet, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         Log.d(LOG_TAG, "(PACK) Launching the Youtube video with key " + youtubeKey);
         launchYoutubeVideo(this, youtubeKey);
     }

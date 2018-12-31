@@ -39,6 +39,7 @@
             android:layout_height="wrap_content"
             android:textAppearance="?android:textAppearanceSmall"
             android:textStyle="bold"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="@id/detail_trailer_thumbnail"
             app:layout_constraintLeft_toLeftOf="@id/detail_trailer_thumbnail"
             app:layout_constraintRight_toRightOf="@id/detail_trailer_thumbnail"
