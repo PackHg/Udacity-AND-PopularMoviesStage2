@@ -90,11 +90,9 @@ public class DataRepository {
 
     public synchronized static DataRepository getInstance(AppDatabase appDatabase,
           TMDBEndpointInterface apiService, AppExecutors appExecutors, OnDownloadOfDataListener listener) {
-        Log.d(LOG_TAG, "(PACK) Getting the data repository");
         if (sInstance == null) {
             synchronized (LOCK) {
                 sInstance = new DataRepository(appDatabase, apiService, appExecutors, listener);
-                Log.d(LOG_TAG, "(PACK) Made new data repository");
             }
         }
         return sInstance;
@@ -105,7 +103,6 @@ public class DataRepository {
      * notify.
      */
     private void checkAllDownloadsAreFinished() {
-        Log.d(LOG_TAG, "(PACK) checkAllDownloadsAreFinished");
         if (mIsDownloadOfMoviesFinished && mIsDownloadOfReviewsFinished
                 && mIsDownloadOfTrailersFinished) {
             mCallback.OnDownloadOfDataFinished();
@@ -125,8 +122,6 @@ public class DataRepository {
         final String TOP_RATED = "Top Rated Movies";
 
         // Accessing the API
-        Log.d(LOG_TAG, "(PACK) downloadMovies() - Starts loading movies from API.");
-
         Call<TMDBMovies> call;
 
         if (sortBy.equals(MOST_POPULAR)) {
@@ -154,7 +149,6 @@ public class DataRepository {
                             if (result != null) {
                                 int movieId = result.getId();
                                 String title = result.getOriginalTitle();
-                                Log.d(LOG_TAG, "(PACK) downloadMovies() - movie title : " + title + ".");
                                 String posterUrl;
                                 if (!result.getPosterPath().isEmpty()) {
                                     posterUrl = BASE_URL + IMAGE_SIZE + result.getPosterPath();
@@ -172,9 +166,7 @@ public class DataRepository {
 
                         mAppExecutors.diskIO().execute(() -> {
                             mAppDatabase.movieDao().deleteAllMovies();
-                            Log.d(LOG_TAG, "(PACK) downloadMovies() - deleted all movies in database.");
                             mAppDatabase.movieDao().insertMovies(mMovieEntries);
-                            Log.d(LOG_TAG, "(PACK) downloadMovies() - inserted downloaded movies into database.");
                         });
 
                         mIsDownloadOfMoviesFinished = true;
@@ -199,12 +191,9 @@ public class DataRepository {
         // Delete all existing reviews
         mAppExecutors.diskIO().execute(() -> {
             mAppDatabase.reviewDao().deleteAllReviews();
-            Log.d(LOG_TAG, "(PACK) downloadReviews() - Deleted all reviews from database.");
         });
 
         // Accessing the API
-        Log.d(LOG_TAG, "(PACK) downloadReviews() - Starts loading reviews from API.");
-
         for(MovieEntry movie: mMovieEntries) {
             Call<TMDBReviews> call = mApiService.reviews(movie.getMovieId(), API_KEY_VALUE);
 
@@ -226,7 +215,6 @@ public class DataRepository {
 
                         mAppExecutors.diskIO().execute(() -> {
                             mAppDatabase.reviewDao().insertReviews(reviews);
-                            Log.d(LOG_TAG, "(PACK) downloadReviews() - inserted reviews of the following movie into database: " + movie.getTitle());
                         });
                     }
                 }
@@ -251,12 +239,9 @@ public class DataRepository {
         // Delete all existing trailers
         mAppExecutors.diskIO().execute(() -> {
             mAppDatabase.trailerDao().deleteAllTrailers();
-            Log.d(LOG_TAG, "(PACK) downloadTrailers() - Deleted all trailers from database.");
         });
 
         // Accessing the API
-        Log.d(LOG_TAG, "(PACK) downloadTrailers() - Starts loading trailers from API.");
-
         for(MovieEntry movie: mMovieEntries) {
             Call<TMDBTrailers> call = mApiService.trailers(movie.getMovieId(), API_KEY_VALUE);
 
@@ -275,12 +260,10 @@ public class DataRepository {
                                     result.getKey(),
                                     result.getSite(),
                                     result.getType()));
-//                            Log.d(LOG_TAG, "(PACK) downloadTrailers() - Trailer's key: " + result.getKey());
                         }
 
                         mAppExecutors.diskIO().execute(() -> {
                             mAppDatabase.trailerDao().insertTrailers(trailers);
-                            Log.d(LOG_TAG, "(PACK) downloadTrailers() - Inserted trailers of the following movie into database: " + movie.getTitle());
                         });
                     }
                 }

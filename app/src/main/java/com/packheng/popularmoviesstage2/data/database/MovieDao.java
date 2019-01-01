@@ -18,7 +18,6 @@ package com.packheng.popularmoviesstage2.data.database;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Dao;
-import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
@@ -44,12 +43,6 @@ public interface MovieDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertMovies(List<MovieEntry> movieEntries);
 
-    @Delete
-    void deleteMovie(MovieEntry movieEntry);
-
-    /**
-     * Deletes all rows in the movies table.
-     */
     @Query("DELETE FROM movies")
     void deleteAllMovies();
 }

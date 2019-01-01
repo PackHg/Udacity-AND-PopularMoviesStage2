@@ -18,7 +18,6 @@ package com.packheng.popularmoviesstage2.viewmodel;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ViewModel;
-import android.util.Log;
 
 import com.packheng.popularmoviesstage2.DetailActivity;
 import com.packheng.popularmoviesstage2.data.DataRepository;
@@ -49,25 +48,12 @@ public class DetailViewModel extends ViewModel {
 
 
     public DetailViewModel(DataRepository repository, int movieId) {
-
         mRepository = repository;
-
-        Log.d(LOG_TAG, String.format("(PACK) Actively retrieving the movie %d from the Database", movieId));
         mObservableMovie = mRepository.getObservableMovieWithMovieId(movieId);
-
-        Log.d(LOG_TAG, "(PACK) Actively retrieving the reviews from the Database");
         mObservableReviews = mRepository.getAllObservableReviewsWithMovieId(movieId);
-
-        Log.d(LOG_TAG, "(PACK) Actively retrieving the trailers from the Database");
         mObservableTrailers = mRepository.getAllObservableTrailersWithMovieId(movieId);
-
-        Log.d(LOG_TAG, String.format("(PACK) Actively retrieving the favorite id %d from the Database", movieId));
         mObservableFavorite = mRepository.getObservableFavoriteWithMovieId(movieId);
-
-        Log.d(LOG_TAG, String.format("(PACK) Actively retrieving reviews of the favorite id %d from the Database", movieId));
         mObservableFavoriteReviews = mRepository.getAllObservableFavoriteReviewsWithMovieId(movieId);
-
-        Log.d(LOG_TAG, String.format("(PACK) Actively retrieving trailers of the favorite id %d from the Database", movieId));
         mObservableFavoriteTrailers = mRepository.getAllObservableFavoriteTrailersWithMovieId(movieId);
     }
 

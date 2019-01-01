@@ -33,9 +33,6 @@ public interface ReviewDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertReviews(List<ReviewEntry> reviewEntries);
 
-    @Query("DELETE FROM reviews WHERE movieId = :movieId")
-    void deleteAllReviewsWithMovieId(int movieId);
-
     @Query("DELETE FROM reviews")
     void deleteAllReviews();
 }

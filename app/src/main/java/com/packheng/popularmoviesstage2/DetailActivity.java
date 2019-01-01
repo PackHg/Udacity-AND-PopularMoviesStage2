@@ -61,7 +61,6 @@ import static com.packheng.popularmoviesstage2.utils.Utils.launchYoutubeVideo;
  * Shows the details of a movie selected in the main view.
  */
 public class DetailActivity extends AppCompatActivity implements TrailerAdapter.ItemClickListener{
-
     private static final String LOG_TAG = DetailActivity.class.getSimpleName();
 
     // Extra for the task ID to be received in the intent
@@ -108,8 +107,6 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
         if (intent != null && intent.hasExtra(EXTRA_MOVIE_ID)) {
             mMovieId = intent.getIntExtra(EXTRA_MOVIE_ID, mMovieId);
         }
-
-        Log.d(LOG_TAG, "(PACK) onCreate() - mMovieId = " + mMovieId);
 
         /*
          * Set up the RecyclerView for the movie's reviews
@@ -172,13 +169,13 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
                 return;
             }
 
-            // Observe movie data
+            // Observe the movie data
             detailViewModel.getObservableMovie().observe(this, movieEntry -> {
                 if (movieEntry != null) {
                     mMovie = movieEntry;
 
                     bindDataToUI(mMovie);
-                    // Observe review data
+                    // Observe the review data
                     detailViewModel.getObservableReviews().observe(this, reviewEntries -> {
                         if (reviewEntries != null) {
                             mReviews = (ArrayList<ReviewEntry>) reviewEntries;
@@ -189,7 +186,7 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
                         }
                     });
 
-                    // Observe trailer data
+                    // Observe the trailer data
                     detailViewModel.getObservableTrailers().observe(this, trailerEntries -> {
                         if (trailerEntries != null){
                             mTrailers = (ArrayList<TrailerEntry>) trailerEntries;
@@ -204,6 +201,7 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
 
         // Observe the star checkbox
         mFavoriteCheckbox.setOnClickListener(v -> {
+
             mIsFavorite = mFavoriteCheckbox.isChecked();
             if (mIsFavorite) {
                 Toast.makeText(DetailActivity.this, getString(R.string.marked_as_favorite),
@@ -217,11 +215,8 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
                     mFavoriteTrailers = copyTrailerEntriesToFavoriteTrailerEntries(mTrailers);
 
                     mDataRepository.addFavorite(mFavorite);
-                    Log.d(LOG_TAG, String.format("(PACK) - Movie %d is added into favorites database", mMovieId));
                     mDataRepository.addFavoriteReviews(mFavoriteReviews);
-                    Log.d(LOG_TAG, String.format("(PACK) - Reviews of movie %d are added into favorites database", mMovieId));
                     mDataRepository.addFavoriteTrailers(mFavoriteTrailers);
-                    Log.d(LOG_TAG, String.format("(PACK) - Trailers of movie %d are added into favorites database", mMovieId));
                 }
             } else {
                 Toast.makeText(DetailActivity.this, getString(R.string.unmarked_as_favorite),
@@ -229,11 +224,8 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
                 if (mFavorite != null) {
                     // Remove the movie data from the favorite tables
                     mDataRepository.deleteFavoriteWithMovieId(mMovieId);
-                    Log.d(LOG_TAG, String.format("(PACK) - Movie %d is removed from favorites database", mMovieId));
                     mDataRepository.deleteAllFavoriteReviewsWithMovieId(mMovieId);
-                    Log.d(LOG_TAG, String.format("(PACK) - Removed reviews of movie %d from favorites database", mMovieId));
                     mDataRepository.deleteAllFavoriteTrailersWithMovieId(mMovieId);
-                    Log.d(LOG_TAG, String.format("(PACK) - Removed trailers of movie %d from favorites database", mMovieId));
 
                     mFavorite = null;
                     mFavoriteReviews = null;
@@ -301,8 +293,6 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
 
     private void bindDataToUI(Movie movie) {
 
-        Log.d(LOG_TAG, "(PACK) bindDataToUI() - Movie title = " + movie.getTitle());
-
         /*
          * Movie poster
          */
@@ -348,7 +338,6 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
             return;
         }
 
-        Log.d(LOG_TAG, "(PACK) Launching the Youtube video with key " + youtubeKey);
         launchYoutubeVideo(this, youtubeKey);
     }
 

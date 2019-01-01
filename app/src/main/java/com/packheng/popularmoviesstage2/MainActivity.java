@@ -86,8 +86,6 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Log.d(LOG_TAG, "(PACK) onCreate()");
-
         ActivityMainBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         mRecyclerView = binding.mainRecyclerView;
         mSwipeRefresh = binding.mainSwipeRefresh;
@@ -99,16 +97,11 @@ public class MainActivity extends AppCompatActivity
             mLastDownloadIsBy = sp.getString(KEY_LAST_DOWNLOAD_IS_BY, mLastDownloadIsBy);
         }
 
-        Log.d(LOG_TAG, "(PACK) onCreate() - mIsDownloaded = " + mIsDownloaded);
-        Log.d(LOG_TAG, "(PACK) onCreate() - mLastDownloadIsBy = " + mLastDownloadIsBy);
-
-        // Get the sort by type from SharedPreferences and register the listener
+        // Get the sort-by type from SharedPreferences and register the listener
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         mSortBy = prefs.getString(getString(R.string.pref_sort_by_key),
                 getString(R.string.pref_sort_by_most_popular));
         prefs.registerOnSharedPreferenceChangeListener(this);
-
-        Log.d(LOG_TAG, "(PACK) onCreate() - mSortBy = " + mSortBy);
 
         mMovies = new ArrayList<>();
 
@@ -124,7 +117,7 @@ public class MainActivity extends AppCompatActivity
         mRecyclerView.setLayoutManager(new GridLayoutManager(this, numberOfColumns));
 
         mSwipeRefresh.setColorSchemeResources(R.color.colorPrimary, R.color.colorGreen, R.color.colorYellow);
-        // Set up a setOnRefreshListener to load the movies when user performs a swipe-to-refresh gesture.
+        // Set up a setOnRefreshListener to download the movies data when user performs a swipe-to-refresh gesture.
         mSwipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -132,6 +125,7 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
+        // Setup a DataRepository instance
         AppDatabase database = AppDatabase.getInstance(getApplicationContext());
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(TMDB_BASE_URL)
@@ -142,7 +136,6 @@ public class MainActivity extends AppCompatActivity
         mDataRepository = DataRepository.getInstance(database, apiService, executors,this);
 
         if (!mIsDownloaded && !mSortBy.equals(getString(R.string.pref_sort_by_favorites))) {
-            Log.d(LOG_TAG, "(PACK) onCreate() - calling downloadData()");
             downloadData();
         }
 
@@ -172,7 +165,6 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void updateUI() {
-        Log.d(LOG_TAG, "(PACK) updateUI() - mSortBy = " + mSortBy);
 
         setActionBarTitle(mSortBy);
         // Update the state of the option menu item "refresh"
@@ -184,14 +176,11 @@ public class MainActivity extends AppCompatActivity
             mSwipeRefresh.setEnabled(false);
 
             if (mFavorites == null || mFavorites.size() == 0) {
-                Log.d(LOG_TAG, "(PACK) updateUI() - mFavorites is null or its size = 0");
                 mRecyclerView.setVisibility(View.GONE);
                 mEmptyTextView.setVisibility(View.VISIBLE);
                 mEmptyTextView.setText(getString(R.string.no_favorites));
                 return;
             }
-
-            Log.d(LOG_TAG, String.format("(PACK) updateUI() - mFavorites.size() = %d", mFavorites.size()));
 
             mMovieAdapter.setMovies(new ArrayList<>(mFavorites));
             return;
@@ -205,10 +194,9 @@ public class MainActivity extends AppCompatActivity
     }
 
     /**
-     * Downloads the movies data from the TMDB API into the database.
+     * Downloads the movies data.
      */
     private void downloadData() {
-        Log.d(LOG_TAG, "(PACK) Starting downloadData()");
 
         mSwipeRefresh.setRefreshing(true);
         mRecyclerView.setVisibility(View.VISIBLE);
@@ -229,18 +217,13 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void OnDownloadOfDataFinished() {
-        Log.d(LOG_TAG, "(PACK) OnDownloadOfDataFinished()");
         mSwipeRefresh.setRefreshing(false);
         mRecyclerView.setVisibility(View.VISIBLE);
         mEmptyTextView.setVisibility(View.GONE);
-
-//        mIsDownloaded = true;
-//        mLastDownloadIsBy = mSortBy;
     }
 
     @Override
     public void OnDownLoadOfDataFailed() {
-        Log.d(LOG_TAG, "(PACK) Starting OnDownLoadOfDataFailed()");
         mSwipeRefresh.setRefreshing(false);
         mRecyclerView.setVisibility(View.GONE);
         mEmptyTextView.setVisibility(View.VISIBLE);
@@ -282,15 +265,10 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    // Reloads the movies if the shared preference (sort by) changes
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (key.equals(getString(R.string.pref_sort_by_key))) {
             String sortByPref = sharedPreferences.getString(key, mSortBy);
-
-            Log.d(LOG_TAG, "(PACK) onSharedPreferenceChanged() - mSortBy = " + mSortBy);
-            Log.d(LOG_TAG, "(PACK) onSharedPreferenceChanged() - sortByPref = " + sortByPref);
-            Log.d(LOG_TAG, "(PACK) onSharedPreferenceChanged() - mLastDownloadIsBy = " + mLastDownloadIsBy);
 
             if (sortByPref.equals(getString(R.string.pref_sort_by_favorites)) || sortByPref.equals(mLastDownloadIsBy)) {
                 mSortBy = sortByPref;

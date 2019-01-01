@@ -35,7 +35,4 @@ public interface FavoriteTrailerDao {
 
     @Query("DELETE FROM favoriteTrailers WHERE movieId = :movieId")
     void deleteAllFavoriteTrailersWithMovieId(int movieId);
-
-    @Query("DELETE FROM favoriteTrailers")
-    void deleteAllFavoriteTrailers();
 }

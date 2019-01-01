@@ -33,9 +33,6 @@ public interface TrailerDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertTrailers(List<TrailerEntry> trailerEntries);
 
-    @Query("DELETE FROM trailers WHERE movieId = :movieId")
-    void deleteAllTrailersWithMovieId(int movieId);
-
     @Query("DELETE FROM trailers")
     void deleteAllTrailers();
 }

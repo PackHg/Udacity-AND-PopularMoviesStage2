@@ -18,7 +18,6 @@ package com.packheng.popularmoviesstage2.viewmodel;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ViewModel;
-import android.util.Log;
 
 import com.packheng.popularmoviesstage2.MainActivity;
 import com.packheng.popularmoviesstage2.data.DataRepository;
@@ -40,9 +39,7 @@ public class MainViewModel extends ViewModel {
 
     public MainViewModel(DataRepository repository) {
         mRepository = repository;
-        Log.d(LOG_TAG, "(PACK) Actively retrieving the movies from the data repository");
         mObservableMovies = mRepository.getAllObservableMovies();
-        Log.d(LOG_TAG, "(PACK) Actively retrieving the favorites from the data repository");
         mObservableFavorites = mRepository.getAllObservableFavorites();
     }
 
