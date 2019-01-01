@@ -178,9 +178,7 @@ public class DataRepository {
                         });
 
                         mIsDownloadOfMoviesFinished = true;
-
                         downloadReviews();
-                        downloadTrailers();
                 } else {
                     mCallback.OnDownLoadOfDataFailed();
                 }
@@ -241,8 +239,9 @@ public class DataRepository {
             });
         }
 
+
         mIsDownloadOfReviewsFinished = true;
-        checkAllDownloadsAreFinished();
+        downloadTrailers();
     }
 
     /**
